@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>操盘手决策罗盘 (v4.3 内核重构版) - 张发财</title>
+    <title>操盘手决策罗盘 (v4.5 ) - 张发财</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,6 +13,7 @@
             font-family: 'Noto Sans SC', sans-serif; 
             background-color: #f0f4f8; 
             color: #1e293b;
+            font-size: 16px; /* 基础字号再提升 */
         }
 
         input[type=number]::-webkit-inner-spin-button, 
@@ -24,17 +25,17 @@
         .input-group:focus-within label { color: #007BFF; }
         .input-group:focus-within input { border-color: #007BFF; ring: 2px; }
 
-        /* 滑块样式优化 */
+        /* 滑块样式优化 - 更大 */
         input[type=range] {
             -webkit-appearance: none; 
             background: transparent;
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 16px; width: 16px;
+            height: 20px; width: 20px; /* 更大的滑块 */
             border-radius: 50%;
             background: #007BFF;
-            margin-top: -6px;
+            margin-top: -8px;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             transition: background 0.2s;
@@ -46,7 +47,6 @@
             border-radius: 2px;
         }
         
-        /* 危险滑块状态 */
         input[type=range].danger::-webkit-slider-thumb { background: #ef4444; }
         input[type=range].safe::-webkit-slider-thumb { background: #22c55e; }
 
@@ -54,6 +54,7 @@
             background-color: #e6f2ff;
             border-color: #007BFF;
             color: #007BFF;
+            font-weight: 700;
         }
         
         @keyframes pulse-gold {
@@ -70,136 +71,136 @@
 
     <!-- 顶部导航 -->
     <header class="bg-[#007BFF] text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-white text-[#007BFF] rounded-lg transform -rotate-3 flex items-center justify-center font-black text-xl shadow-md border-2 border-yellow-400">财</div>
+                <div class="w-11 h-11 bg-white text-[#007BFF] rounded-lg transform -rotate-3 flex items-center justify-center font-black text-3xl shadow-md border-2 border-yellow-400">财</div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-wide hidden sm:block">操盘手决策罗盘 <span class="text-[10px] bg-blue-800 text-blue-100 px-1.5 py-0.5 rounded ml-1 font-normal">v4.3 内核重构</span></h1>
-                    <h1 class="text-lg font-bold tracking-wide sm:hidden">操盘手罗盘</h1>
+                    <h1 class="text-2xl font-bold tracking-wide hidden sm:block">操盘手决策罗盘 <span class="text-sm bg-blue-800 text-blue-100 px-2 py-0.5 rounded ml-1 font-normal align-middle">v4.5 老花友好版</span></h1>
+                    <h1 class="text-xl font-bold tracking-wide sm:hidden">操盘手罗盘</h1>
                 </div>
             </div>
             
             <div class="flex items-center gap-3">
-                <button onclick="toggleHistory()" class="group text-xs bg-blue-900/30 hover:bg-blue-900/50 border border-blue-200/20 text-blue-50 px-4 py-2 rounded-full transition-all flex items-center gap-2 backdrop-blur-sm">
+                <button onclick="toggleHistory()" class="group text-base bg-blue-900/30 hover:bg-blue-900/50 border border-blue-200/20 text-blue-50 px-5 py-2.5 rounded-full transition-all flex items-center gap-2 backdrop-blur-sm">
                     <i class="fas fa-history opacity-70 group-hover:opacity-100 transition-opacity"></i> 
-                    <span class="hidden sm:inline font-medium">历史记录</span>
+                    <span class="hidden sm:inline font-medium">历史</span>
                 </button>
                 
-                <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="btn-vip relative px-4 py-2 bg-slate-900 text-yellow-400 font-bold text-xs rounded-full transition-all transform hover:-translate-y-0.5 hover:shadow-xl flex items-center gap-2 border border-yellow-600/30 shadow-lg">
-                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="btn-vip relative px-6 py-3 bg-slate-900 text-yellow-400 font-bold text-base rounded-full transition-all transform hover:-translate-y-0.5 hover:shadow-xl flex items-center gap-2 border border-yellow-600/30 shadow-lg">
+                    <span class="absolute -top-1 -right-1 flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border border-slate-900"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-slate-900"></span>
                     </span>
                     <i class="fas fa-crown text-yellow-500"></i>
-                    <span>张发财的资料库 3.0</span>
+                    <span>资料库 3.0</span>
                 </a>
             </div>
         </div>
     </header>
 
     <!-- 场景选择栏 -->
-    <div class="bg-white border-b border-gray-200 sticky top-[60px] z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 py-3 overflow-x-auto whitespace-nowrap scrollbar-hide">
-            <span class="text-xs font-bold text-gray-500 mr-2 uppercase">一键场景:</span>
-            <button onclick="loadScenario('fashion')" class="scenario-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition mr-2">
+    <div class="bg-white border-b border-gray-200 sticky top-[76px] z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-5 overflow-x-auto whitespace-nowrap scrollbar-hide flex items-center">
+            <span class="text-base font-bold text-gray-500 mr-4 uppercase">一键场景:</span>
+            <button onclick="loadScenario('fashion')" class="scenario-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-base font-medium text-gray-600 hover:bg-gray-50 transition mr-3">
                 <i class="fas fa-tshirt"></i> 服饰清仓
             </button>
-            <button onclick="loadScenario('beauty')" class="scenario-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition mr-2">
+            <button onclick="loadScenario('beauty')" class="scenario-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-base font-medium text-gray-600 hover:bg-gray-50 transition mr-3">
                 <i class="fas fa-spray-can"></i> 美妆新品
             </button>
-            <button onclick="loadScenario('highTicket')" class="scenario-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition mr-2">
+            <button onclick="loadScenario('highTicket')" class="scenario-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-base font-medium text-gray-600 hover:bg-gray-50 transition mr-3">
                 <i class="fas fa-couch"></i> 家电家居
             </button>
-            <button onclick="resetForm()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-gray-300 text-xs font-medium text-gray-400 hover:text-red-500 hover:border-red-300 transition ml-auto">
+            <button onclick="resetForm()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-dashed border-gray-300 text-base font-medium text-gray-400 hover:text-red-500 hover:border-red-300 transition ml-auto">
                 <i class="fas fa-trash-alt"></i> 清空
             </button>
         </div>
     </div>
 
-    <main class="flex-grow p-4 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         <!-- 左侧：输入与配置 (占7列) -->
-        <div class="lg:col-span-7 space-y-5">
+        <div class="lg:col-span-7 space-y-8">
             
             <!-- 模块1: 流量与转化 -->
             <div class="bg-white rounded-xl card-shadow border-l-4 border-[#007BFF] group hover:shadow-md transition-shadow">
-                <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-blue-50/30">
-                    <h2 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i class="fas fa-filter text-[#007BFF]"></i> 流量漏斗 (前端)</h2>
-                    <span class="text-[10px] text-gray-400">输入基础投放数据</span>
+                <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-blue-50/30">
+                    <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2"><i class="fas fa-filter text-[#007BFF]"></i> 流量漏斗 (前端)</h2>
+                    <span class="text-sm text-gray-400">输入基础投放数据</span>
                 </div>
-                <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div class="input-group">
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">推广花费</label>
-                        <input type="number" id="adCost" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition" value="2000" oninput="calc()">
+                        <label class="block text-sm font-bold text-gray-500 uppercase mb-2">推广花费</label>
+                        <input type="number" id="adCost" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none transition" value="2000" oninput="calc()">
                     </div>
                     <div class="input-group">
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">成交额 (GMV)</label>
-                        <input type="number" id="adGmv" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition" value="4500" oninput="calc()">
+                        <label class="block text-sm font-bold text-gray-500 uppercase mb-2">成交额 (GMV)</label>
+                        <input type="number" id="adGmv" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none transition" value="4500" oninput="calc()">
                     </div>
                     <div class="input-group">
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">PPC (点击成本)</label>
-                        <input type="number" id="ppc" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition" value="1.5" step="0.1" oninput="calc()">
+                        <label class="block text-sm font-bold text-gray-500 uppercase mb-2">PPC (点击成本)</label>
+                        <input type="number" id="ppc" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none transition" value="1.5" step="0.1" oninput="calc()">
                     </div>
                     <div class="input-group">
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">客单价</label>
-                        <input type="number" id="avgTicket" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition" value="89" oninput="calc()">
+                        <label class="block text-sm font-bold text-gray-500 uppercase mb-2">客单价</label>
+                        <input type="number" id="avgTicket" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none transition" value="89" oninput="calc()">
                     </div>
                 </div>
             </div>
 
             <!-- 模块2: 真实成本结构 -->
             <div class="bg-white rounded-xl card-shadow border-l-4 border-red-500 group hover:shadow-md transition-shadow">
-                <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
-                    <h2 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i class="fas fa-cut text-red-500"></i> 成本结构 (别自欺欺人)</h2>
+                <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
+                    <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2"><i class="fas fa-cut text-red-500"></i> 成本结构 (别自欺欺人)</h2>
                 </div>
-                <div class="p-5 space-y-4">
+                <div class="p-6 space-y-6">
                     <!-- 变动成本 -->
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-3 gap-6">
                         <div class="input-group">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">产品成本 (拿货价)</label>
-                            <input type="number" id="productCost" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="35" oninput="calc()">
+                            <label class="block text-sm font-bold text-gray-500 uppercase mb-2">产品成本 (拿货价)</label>
+                            <input type="number" id="productCost" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none" value="35" oninput="calc()">
                         </div>
                         <div class="input-group">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">单均履约 (快递+打包)</label>
-                            <input type="number" id="fulfillmentCost" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="4.5" oninput="calc()">
+                            <label class="block text-sm font-bold text-gray-500 uppercase mb-2">单均履约 (快递+打包)</label>
+                            <input type="number" id="fulfillmentCost" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none" value="4.5" oninput="calc()">
                         </div>
                         <div class="input-group">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">平台佣金+支付 (%)</label>
-                            <input type="number" id="platformFeeRate" class="w-full text-sm font-mono border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="5.5" step="0.1" oninput="calc()">
+                            <label class="block text-sm font-bold text-gray-500 uppercase mb-2">平台佣金+支付 (%)</label>
+                            <input type="number" id="platformFeeRate" class="w-full text-xl font-mono font-bold border-b-2 border-gray-200 bg-transparent py-2 focus:outline-none" value="5.5" step="0.1" oninput="calc()">
                         </div>
                     </div>
 
                     <!-- 风险与固定成本 -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2 border-t border-dashed border-gray-200">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-5 border-t border-dashed border-gray-200">
                         <div class="input-group col-span-1">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1 text-red-600">退款率 (%)</label>
-                            <input type="number" id="refundRate" class="w-full text-sm font-mono border-b-2 border-red-100 bg-transparent py-1 focus:outline-none" value="15" oninput="calc()">
+                            <label class="block text-sm font-bold text-gray-500 uppercase mb-2 text-red-600">退款率 (%)</label>
+                            <input type="number" id="refundRate" class="w-full text-xl font-mono font-bold border-b-2 border-red-100 bg-transparent py-2 focus:outline-none" value="15" oninput="calc()">
                         </div>
                          <div class="input-group col-span-1">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1 text-red-600" title="退一单亏多少运费">退货运费损失/单</label>
-                            <input type="number" id="returnLoss" class="w-full text-sm font-mono border-b-2 border-red-100 bg-transparent py-1 focus:outline-none" value="5" oninput="calc()">
+                            <label class="block text-sm font-bold text-gray-500 uppercase mb-2 text-red-600" title="退一单亏多少运费">退货运费损失/单</label>
+                            <input type="number" id="returnLoss" class="w-full text-xl font-mono font-bold border-b-2 border-red-100 bg-transparent py-2 focus:outline-none" value="5" oninput="calc()">
                         </div>
                         
                         <!-- 固定成本摊销计算器 -->
-                        <div class="col-span-2 bg-slate-50 p-2 rounded border border-slate-200 hover:border-[#007BFF] transition-colors">
-                            <label class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1 cursor-pointer" onclick="toggleFixedDetails()">
+                        <div class="col-span-2 bg-slate-50 p-4 rounded border border-slate-200 hover:border-[#007BFF] transition-colors">
+                            <label class="flex justify-between text-sm font-bold text-gray-500 uppercase mb-2 cursor-pointer" onclick="toggleFixedDetails()">
                                 <span>固定成本摊销 (人力/房租)</span>
                                 <i class="fas fa-calculator text-[#007BFF]"></i>
                             </label>
-                            <div class="flex gap-2 items-end">
+                            <div class="flex gap-3 items-end">
                                 <div class="flex-1">
-                                    <input type="number" id="fixedCostPerOrder" class="w-full text-sm font-bold text-slate-700 bg-white border border-slate-300 rounded px-2 py-1" value="3.0" oninput="calc()">
+                                    <input type="number" id="fixedCostPerOrder" class="w-full text-lg font-bold text-slate-700 bg-white border border-slate-300 rounded px-3 py-2" value="3.0" oninput="calc()">
                                 </div>
-                                <div class="text-[10px] text-gray-400 pb-1">元/单</div>
+                                <div class="text-sm text-gray-400 pb-2">元/单</div>
                             </div>
-                            <div id="fixedDetails" class="hidden mt-2 text-[10px] space-y-1 border-t border-slate-200 pt-1">
+                            <div id="fixedDetails" class="hidden mt-3 text-sm space-y-2 border-t border-slate-200 pt-2">
                                 <div class="flex justify-between items-center">
                                     <span>月固定总支出:</span>
-                                    <input type="number" id="monthFixedTotal" placeholder="15000" class="w-16 border-b text-right bg-transparent" oninput="calcFixed()">
+                                    <input type="number" id="monthFixedTotal" placeholder="15000" class="w-24 border-b text-right bg-transparent" oninput="calcFixed()">
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span>月预估总单量:</span>
-                                    <input type="number" id="monthOrders" placeholder="5000" class="w-16 border-b text-right bg-transparent" oninput="calcFixed()">
+                                    <input type="number" id="monthOrders" placeholder="5000" class="w-24 border-b text-right bg-transparent" oninput="calcFixed()">
                                 </div>
                             </div>
                         </div>
@@ -209,32 +210,32 @@
 
             <!-- 模块3: 增长杠杆 -->
             <div class="bg-white rounded-xl card-shadow border-l-4 border-green-500 group hover:shadow-md transition-shadow">
-                <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-green-50/30">
-                    <h2 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i class="fas fa-chart-line text-green-500"></i> 增长杠杆 (别只看首单)</h2>
+                <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-green-50/30">
+                    <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2"><i class="fas fa-chart-line text-green-500"></i> 增长杠杆 (别只看首单)</h2>
                 </div>
-                <div class="p-5 grid grid-cols-2 gap-6">
+                <div class="p-6 grid grid-cols-2 gap-8">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">自然流量撬动比 (基于订单)</label>
-                        <div class="flex items-center gap-2">
-                            <input type="range" id="organicRatioSlide" min="0" max="2" step="0.1" value="0.5" class="w-20" oninput="updateRange('organicRatioSlide', 'organicRatioDisplay'); calc()">
-                            <span id="organicRatioDisplay" class="text-sm font-mono font-bold text-green-600">0.5</span>
-                            <span class="text-xs text-gray-400">倍</span>
+                        <label class="block text-sm font-bold text-gray-500 uppercase mb-2">自然流量撬动比 (基于订单)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="organicRatioSlide" min="0" max="2" step="0.1" value="0.5" class="w-28" oninput="updateRange('organicRatioSlide', 'organicRatioDisplay'); calc()">
+                            <span id="organicRatioDisplay" class="text-xl font-mono font-bold text-green-600">0.5</span>
+                            <span class="text-base text-gray-400">倍</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-1">每1个付费订单带来X个自然订单</p>
+                        <p class="text-sm text-gray-400 mt-2">每1个付费订单带来X个自然订单</p>
                     </div>
                     <div>
-                        <div class="flex justify-between items-center mb-1">
-                             <label class="block text-[10px] font-bold text-gray-500 uppercase">LTV (复购增值)</label>
+                        <div class="flex justify-between items-center mb-2">
+                             <label class="block text-sm font-bold text-gray-500 uppercase">LTV (复购增值)</label>
                              <!-- LTV 参考按钮 -->
-                             <button onclick="setLtvRef()" class="text-[10px] text-[#007BFF] bg-blue-50 px-2 rounded hover:bg-blue-100 transition">填入参考值</button>
+                             <button onclick="setLtvRef()" class="text-sm text-[#007BFF] bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition">填入参考值</button>
                         </div>
                        
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs text-gray-400">+</span>
-                            <input type="number" id="ltvAdd" value="0" class="w-16 border-b border-gray-300 text-center font-mono text-sm" oninput="calc()">
-                            <span class="text-xs text-gray-400">元/客户</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-base text-gray-400">+</span>
+                            <input type="number" id="ltvAdd" value="0" class="w-24 border-b border-gray-300 text-center font-mono text-xl font-bold" oninput="calc()">
+                            <span class="text-base text-gray-400">元/客户</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-1">客户生命周期贡献的额外毛利</p>
+                        <p class="text-sm text-gray-400 mt-2">客户生命周期贡献的额外毛利</p>
                     </div>
                 </div>
             </div>
@@ -242,63 +243,63 @@
         </div>
 
         <!-- 右侧：决策分析面板 (占5列) -->
-        <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-24">
+        <div class="lg:col-span-5 space-y-8 lg:sticky lg:top-24">
             
             <!-- 结果总览卡片 -->
             <div class="bg-white rounded-xl card-shadow overflow-hidden border-t-4 border-[#007BFF]">
-                <div class="bg-[#007BFF] px-6 py-4 relative overflow-hidden">
+                <div class="bg-[#007BFF] px-6 py-6 relative overflow-hidden">
                      <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full transform translate-x-10 -translate-y-10"></div>
-                     <h3 class="text-xs font-bold text-blue-100 uppercase tracking-wider mb-2">综合决策分析</h3>
+                     <h3 class="text-base font-bold text-blue-100 uppercase tracking-wider mb-2">综合决策分析</h3>
                      <div class="flex items-end justify-between">
                         <div>
-                            <div class="text-4xl font-black tracking-tight text-white" id="totalNetProfit">¥ 0.00</div>
-                            <div class="text-xs text-blue-100 mt-1">最终净利润 (含自然流&LTV)</div>
+                            <div class="text-6xl font-black tracking-tight text-white" id="totalNetProfit">¥ 0</div>
+                            <div class="text-base text-blue-100 mt-1">最终净利润 (含自然流&LTV)</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-green-300" id="totalNetRate">0%</div>
-                             <div class="text-xs text-blue-100">真实净利率</div>
+                            <div class="text-3xl font-bold text-green-300" id="totalNetRate">0%</div>
+                             <div class="text-base text-blue-100">真实净利率</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="p-4 bg-white">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-gray-50 p-3 rounded border border-gray-100 text-center">
-                            <div class="text-[10px] text-gray-400 font-bold uppercase">前端 ROI (首单)</div>
-                            <div class="text-lg font-bold text-gray-700 font-mono" id="frontRoi">0.00</div>
-                            <div class="text-[10px] text-gray-400 mt-1 bg-white inline-block px-2 rounded border border-gray-200">盈亏线: <span id="beRoiFront" class="text-orange-500 font-bold">--</span></div>
+                <div class="p-6 bg-white">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100 text-center">
+                            <div class="text-sm text-gray-500 font-bold uppercase mb-1">前端 ROI (首单)</div>
+                            <div class="text-3xl font-bold text-gray-700 font-mono" id="frontRoi">0.00</div>
+                            <div class="text-sm text-gray-500 mt-2 bg-white inline-block px-3 py-1 rounded border border-gray-200">盈亏线: <span id="beRoiFront" class="text-orange-500 font-bold">--</span></div>
                         </div>
-                        <div class="bg-blue-50 p-3 rounded border border-blue-100 text-center relative overflow-hidden">
-                            <div class="text-[10px] text-[#007BFF] font-bold uppercase">综合 ROI (全生命周期)</div>
-                            <div class="text-xl font-bold text-[#007BFF] font-mono" id="totalRoi">0.00</div>
-                            <div class="text-[10px] text-blue-400 mt-1 bg-white/50 inline-block px-2 rounded">盈亏线: <span id="beRoiTotal" class="text-blue-600 font-bold">--</span></div>
-                            <i class="fas fa-layer-group absolute right-1 bottom-1 text-blue-200 text-2xl opacity-50"></i>
+                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-100 text-center relative overflow-hidden">
+                            <div class="text-sm text-[#007BFF] font-bold uppercase mb-1">综合 ROI (全生命周期)</div>
+                            <div class="text-3xl font-bold text-[#007BFF] font-mono" id="totalRoi">0.00</div>
+                            <div class="text-sm text-blue-500 mt-2 bg-white/50 inline-block px-3 py-1 rounded">盈亏线: <span id="beRoiTotal" class="text-blue-700 font-bold">--</span></div>
+                            <i class="fas fa-layer-group absolute right-2 bottom-2 text-blue-200 text-4xl opacity-50"></i>
                         </div>
                     </div>
 
                     <!-- 结果标签 -->
-                    <div id="resultBadge" class="mt-4 py-2 px-3 rounded text-xs font-bold text-center bg-gray-100 text-gray-500">
+                    <div id="resultBadge" class="mt-6 py-3 px-4 rounded-lg text-base font-bold text-center bg-gray-100 text-gray-500">
                         等待计算...
                     </div>
                 </div>
             </div>
 
             <!-- 敏感性分析 (沙盘推演) -->
-            <div class="bg-white rounded-xl card-shadow p-5 border border-gray-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-chess-board text-purple-500"></i> 沙盘推演 (What-if)</h3>
-                    <button onclick="resetSim()" class="text-[10px] text-[#007BFF] hover:underline">重置</button>
+            <div class="bg-white rounded-xl card-shadow p-6 border border-gray-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-chess-board text-purple-500"></i> 沙盘推演 (What-if)</h3>
+                    <button onclick="resetSim()" class="text-sm text-[#007BFF] hover:underline font-bold">重置</button>
                 </div>
                 
-                <div class="space-y-5">
+                <div class="space-y-8">
                     <!-- PPC 推演 -->
                     <div class="group relative">
-                        <div class="flex justify-between text-xs mb-1">
+                        <div class="flex justify-between text-base mb-2">
                             <span class="font-bold text-gray-600">PPC 波动</span>
                             <span class="font-bold text-purple-600 font-mono" id="simPpcVal">0%</span>
                         </div>
                         <input type="range" id="simPpc" min="-50" max="50" value="0" step="5" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="updateSim()">
-                        <div class="flex justify-between text-[10px] text-gray-400 mt-1">
+                        <div class="flex justify-between text-sm text-gray-400 mt-2">
                             <span>-50%</span>
                             <span>当前</span>
                             <span>+50%</span>
@@ -307,12 +308,12 @@
 
                     <!-- 转化率 推演 -->
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
+                        <div class="flex justify-between text-base mb-2">
                             <span class="font-bold text-gray-600">转化率 波动</span>
                             <span class="font-bold text-purple-600 font-mono" id="simCvrVal">0%</span>
                         </div>
                         <input type="range" id="simCvr" min="-50" max="50" value="0" step="5" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="updateSim()">
-                         <div class="flex justify-between text-[10px] text-gray-400 mt-1">
+                         <div class="flex justify-between text-sm text-gray-400 mt-2">
                             <span>-50%</span>
                             <span>当前</span>
                             <span>+50%</span>
@@ -320,35 +321,35 @@
                     </div>
 
                     <!-- 推演结果 -->
-                    <div id="simResultBox" class="bg-gray-50 p-3 rounded border border-gray-200 mt-2 transition-colors duration-300">
-                        <div class="text-xs text-gray-600 text-center">推演后预计净利: <span class="font-bold text-gray-400 text-lg ml-1 font-mono" id="simResult">--</span></div>
+                    <div id="simResultBox" class="bg-gray-50 p-5 rounded-lg border border-gray-200 mt-4 transition-colors duration-300">
+                        <div class="text-base text-gray-600 text-center">推演后预计净利: <span class="font-bold text-gray-400 text-2xl ml-2 font-mono" id="simResult">--</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- 毒舌建议 & 资料库引导 -->
-            <div class="bg-white rounded-xl card-shadow p-5 relative">
-                <i class="fas fa-quote-right absolute top-4 right-4 text-gray-100 text-4xl"></i>
-                <h3 class="font-bold text-gray-800 text-sm mb-3">张发财的毒舌诊断</h3>
-                <div id="diagnosis" class="text-xs text-gray-600 leading-relaxed space-y-2">
+            <div class="bg-white rounded-xl card-shadow p-6 relative">
+                <i class="fas fa-quote-right absolute top-5 right-5 text-gray-100 text-6xl"></i>
+                <h3 class="font-bold text-gray-800 text-lg mb-4">张发财的毒舌诊断</h3>
+                <div id="diagnosis" class="text-base text-gray-600 leading-relaxed space-y-4">
                     <!-- JS 生成 -->
                 </div>
                 <!-- 主操作按钮使用主色调 -->
-                <button onclick="saveResult()" class="mt-4 w-full bg-[#007BFF] hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded transition shadow-md shadow-blue-200">
+                <button onclick="saveResult()" class="mt-8 w-full bg-[#007BFF] hover:bg-blue-600 text-white text-base font-bold py-3.5 rounded-lg transition shadow-lg shadow-blue-200 active:scale-[0.98]">
                     保存并分析
                 </button>
 
                 <!-- 资料库引流卡片 -->
-                <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="block mt-4 group">
+                <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="block mt-6 group">
                     <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg p-1 border border-slate-700 shadow-xl relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-full bg-gradient-to-l from-white/10 to-transparent skew-x-12"></div>
-                        <div class="px-3 py-2 flex items-center justify-between relative z-10">
+                        <div class="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-white/10 to-transparent skew-x-12"></div>
+                        <div class="px-5 py-4 flex items-center justify-between relative z-10">
                             <div>
-                                <div class="text-[10px] text-yellow-400 font-bold uppercase tracking-wider mb-0.5"><i class="fas fa-lightbulb"></i> 被骂了不知道怎么改？</div>
-                                <div class="text-xs font-bold text-white group-hover:text-yellow-300 transition-colors">👉 进入张发财的实战资料库</div>
+                                <div class="text-xs text-yellow-400 font-bold uppercase tracking-wider mb-1"><i class="fas fa-lightbulb"></i> 被骂了不知道怎么改？</div>
+                                <div class="text-base font-bold text-white group-hover:text-yellow-300 transition-colors">👉 进入张发财的实战资料库</div>
                             </div>
-                            <div class="h-6 w-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-arrow-right text-slate-900 text-[10px]"></i>
+                            <div class="h-10 w-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-arrow-right text-slate-900 text-sm"></i>
                             </div>
                         </div>
                     </div>
@@ -359,16 +360,16 @@
     </main>
     
     <!-- 历史记录抽屉 -->
-    <div id="historyDrawer" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 p-6 overflow-y-auto border-l-4 border-[#007BFF]">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="font-bold text-lg text-[#007BFF]">历史推演记录</h3>
-            <button onclick="toggleHistory()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+    <div id="historyDrawer" class="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 p-8 overflow-y-auto border-l-4 border-[#007BFF]">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="font-bold text-xl text-[#007BFF]">历史推演记录</h3>
+            <button onclick="toggleHistory()" class="text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <div id="historyList" class="space-y-3">
+        <div id="historyList" class="space-y-4">
             <!-- 历史列表 -->
-            <p class="text-sm text-gray-400 text-center py-10">暂无记录，点击"保存并分析"添加</p>
+            <p class="text-base text-gray-400 text-center py-10">暂无记录，点击"保存并分析"添加</p>
         </div>
-        <button onclick="clearHistory()" class="mt-6 w-full border border-red-200 text-red-500 text-xs py-2 rounded hover:bg-red-50">清空历史</button>
+        <button onclick="clearHistory()" class="mt-8 w-full border border-red-200 text-red-500 text-sm py-3 rounded-lg hover:bg-red-50 font-bold transition">清空历史</button>
     </div>
 
     <script>
@@ -384,7 +385,7 @@
                 adCost: 5000, adGmv: 9000, ppc: 2.5, avgTicket: 189, 
                 productCost: 35, fulfillmentCost: 3.5, platformFeeRate: 6, 
                 refundRate: 5, returnLoss: 4, fixedCostPerOrder: 5,
-                organicRatio: 0.5, ltvAdd: 150 // 修正LTV参考
+                organicRatio: 0.5, ltvAdd: 150 
             },
             'highTicket': { 
                 adCost: 8000, adGmv: 20000, ppc: 4.0, avgTicket: 899, 
@@ -463,35 +464,24 @@
             calc();
         }
 
-        // ==========================================
-        // 核心计算函数 (内核重构版 v4.3)
-        // 修复了维度混淆、自然流逻辑错误和盈亏平衡点计算
-        // ==========================================
         function calculateMetrics(simPpcPercent = 0, simCvrPercent = 0) {
-            // 1. 获取原始输入数据
             const originalAdCost = get('adCost');
             const originalAdGmv = get('adGmv');
             const originalPpc = get('ppc');
             const avgTicket = get('avgTicket');
             
-            // 2. 计算基础指标 (基于原始数据推导Base Clicks/Orders)
             const originalClicks = originalPpc > 0 ? originalAdCost / originalPpc : 0;
             const originalOrders = avgTicket > 0 ? originalAdGmv / avgTicket : 0;
             const originalCvr = originalClicks > 0 ? originalOrders / originalClicks : 0;
             
-            // 3. 应用推演波动 (Fix: 基于流量漏斗推算新订单)
             let currentPpc = originalPpc * (1 + simPpcPercent/100);
             let currentCvr = originalCvr * (1 + simCvrPercent/100);
             
-            // 假设：推演时点击量不变(预算/PPC变动太复杂，这里简化为PPC变导致成本变，或者点击量不变)
-            // 用户逻辑：currentAdCost = originalClicks * currentPpc
             let currentAdCost = originalClicks * currentPpc; 
             
-            // 关键修正：订单量的变化是由CVR变化驱动的，而不是直接乘GMV
             let currentPaidOrders = originalClicks * currentCvr; 
             let currentAdGmv = currentPaidOrders * avgTicket;
             
-            // 4. 成本参数
             const productCost = get('productCost');
             const fulfillment = get('fulfillmentCost');
             const feeRate = get('platformFeeRate') / 100;
@@ -501,56 +491,39 @@
             const organicRatio = parseFloat(document.getElementById('organicRatioSlide').value);
             const ltvAdd = get('ltvAdd');
             
-            // 5. 订单和收入计算 (Fix: 自然流基于订单数)
             const paidSuccessOrders = currentPaidOrders * (1 - refundRate);
             const paidRevenue = paidSuccessOrders * avgTicket;
             
-            // 自然流量修正：自然订单 = 付费订单 * 撬动比
             const organicOrders = currentPaidOrders * organicRatio;
             const organicSuccessOrders = organicOrders * (1 - refundRate);
             const organicRevenue = organicSuccessOrders * avgTicket;
             
-            const totalOrders = currentPaidOrders + organicOrders; // 总发货单量
-            const totalSuccessOrders = paidSuccessOrders + organicSuccessOrders; // 总成功单量
-            const totalRevenue = paidRevenue + organicRevenue; // 总实际收入
+            const totalOrders = currentPaidOrders + organicOrders; 
+            const totalSuccessOrders = paidSuccessOrders + organicSuccessOrders; 
+            const totalRevenue = paidRevenue + organicRevenue; 
             
-            // 6. 成本计算 (Fix: 覆盖全链路)
-            const totalProductCost = totalOrders * productCost; // 所有发出的货都有成本
-            const totalFulfillment = totalOrders * fulfillment; // 所有发出的单都有快递费
-            const totalReturnLoss = (totalOrders * refundRate) * returnLoss; // 退货单产生的运费损失
-            const totalPlatformFee = totalRevenue * feeRate; // 仅成功订单收佣金(简化)
-            const totalFixedCost = totalOrders * fixedCost; // 固定成本摊销
+            const totalProductCost = totalOrders * productCost; 
+            const totalFulfillment = totalOrders * fulfillment; 
+            const totalReturnLoss = (totalOrders * refundRate) * returnLoss; 
+            const totalPlatformFee = totalRevenue * feeRate; 
+            const totalFixedCost = totalOrders * fixedCost; 
             
             const totalOpsCost = totalProductCost + totalFulfillment + totalReturnLoss + totalPlatformFee + totalFixedCost;
             const totalCost = currentAdCost + totalOpsCost;
             
-            // 7. 利润和ROI计算
-            const currentNetProfit = totalRevenue - totalCost; // 当期净利
-            const ltvValue = totalSuccessOrders * ltvAdd; // 未来LTV增值
-            const totalProfit = currentNetProfit + ltvValue; // 全生命周期利润
+            const currentNetProfit = totalRevenue - totalCost; 
+            const ltvValue = totalSuccessOrders * ltvAdd; 
+            const totalProfit = currentNetProfit + ltvValue; 
             
-            // ROI修正：分母是广告费，分子是对应维度的价值
-            const frontRoi = currentAdCost > 0 ? currentAdGmv / currentAdCost : 0; // 前端ROI = 付费GMV/花费
-            // 综合ROI = (总营收 + LTV) / 花费。 注意：这里totalRevenue包含了自然流，符合"综合"定义
-            const totalRoi = currentAdCost > 0 ? (totalRevenue + ltvValue) / currentAdCost : 0;
+            const frontRoi = currentAdCost > 0 ? currentAdGmv / currentAdCost : 0; 
+            const totalRoi = currentAdCost > 0 ? (totalRevenue + ltvValue) / currentAdCost : 0; 
             
-            // 8. 盈亏平衡点 (Unit Economics Fix)
-            // 单单净利 (前端)
             const unitRevenue = avgTicket * (1 - refundRate);
             const unitVariableCost = productCost + fulfillment + (avgTicket * feeRate) + (refundRate * returnLoss) + fixedCost;
             const unitNetProfitFront = unitRevenue - unitVariableCost;
             
-            // 单单综合价值 (含自然流摊销 + LTV)
-            // 1个付费单带来的总价值 = 1个付费单净利 + (Ratio个自然单净利) + (1+Ratio个成功单的LTV)
-            // 简化逻辑：前端BE ROI = AOV / UnitNetProfit
             const frontBreakEven = unitNetProfitFront > 0 ? avgTicket / unitNetProfitFront : 999;
             
-            // 综合BE ROI推导：
-            // AdCost = Total Contribution
-            // Total Contribution per Paid Order = UnitNetProfitFront + (OrganicRatio * UnitNetProfitFront) + ((1+OrganicRatio)*(1-RefundRate)*LTV) ??
-            // 简单点：Total Profit = 0 implies AdCost = TotalOpsProfit + LTV
-            // TotalOpsProfit + LTV = PaidOrders * (UnitNetProfitFront + Ratio*UnitNetProfitFront) + TotalSuccess * LTV
-            // Total Val per Paid Order = UnitNetProfitFront * (1 + organicRatio) + (1 + organicRatio) * (1-refundRate) * ltvAdd
             const unitTotalVal = unitNetProfitFront * (1 + organicRatio) + (1 + organicRatio) * (1 - refundRate) * ltvAdd;
             const totalBreakEven = unitTotalVal > 0 ? avgTicket / unitTotalVal : 999;
 
@@ -561,7 +534,6 @@
                 frontBreakEven,
                 totalBreakEven,
                 netRate: totalRevenue > 0 ? (totalProfit / totalRevenue * 100) : 0,
-                // 为了诊断用
                 unitNetProfitFront,
                 adCost: currentAdCost 
             };
@@ -586,42 +558,33 @@
                 updateSim();
             } else {
                 set('simResult', '--');
-                // 还原样式
-                document.getElementById('simResultBox').className = "bg-gray-50 p-3 rounded border border-gray-200 mt-2 transition-colors duration-300";
+                document.getElementById('simResultBox').className = "bg-gray-50 p-5 rounded-lg border border-gray-200 mt-4 transition-colors duration-300";
             }
         }
 
         function updateBadge(profit, rate) {
             const el = document.getElementById('resultBadge');
             if(profit > 1000 && rate > 15) {
-                el.className = "mt-4 py-2 px-3 rounded text-xs font-bold text-center bg-green-500 text-white shadow-lg shadow-green-200";
+                el.className = "mt-6 py-3 px-4 rounded-lg text-base font-bold text-center bg-green-500 text-white shadow-lg shadow-green-200";
                 el.innerHTML = "<i class='fas fa-star'></i> 优质项目 - 建议放大预算";
             } else if (profit >= 0) {
-                el.className = "mt-4 py-2 px-3 rounded text-xs font-bold text-center bg-[#007BFF] text-white";
+                el.className = "mt-6 py-3 px-4 rounded-lg text-base font-bold text-center bg-[#007BFF] text-white";
                 el.innerHTML = "<i class='fas fa-check'></i> 盈利模型 - 需精细化运营";
             } else if (profit > -500) {
-                el.className = "mt-4 py-2 px-3 rounded text-xs font-bold text-center bg-yellow-500 text-white";
+                el.className = "mt-6 py-3 px-4 rounded-lg text-base font-bold text-center bg-yellow-500 text-white";
                 el.innerHTML = "<i class='fas fa-exclamation-triangle'></i> 风险项目 - 盈亏边缘试探";
             } else {
-                el.className = "mt-4 py-2 px-3 rounded text-xs font-bold text-center bg-red-600 text-white animate-pulse";
+                el.className = "mt-6 py-3 px-4 rounded-lg text-base font-bold text-center bg-red-600 text-white animate-pulse";
                 el.innerHTML = "<i class='fas fa-skull'></i> 严重亏损 - 立即停止投放";
             }
         }
 
-        // ========================
-        // 毒舌诊断升级 (数值化)
-        // ========================
         function updateDiagnosis(res) {
             const box = document.getElementById('diagnosis');
             let msg = [];
             const adCost = get('adCost');
 
-            // 1. 前端亏损诊断
             if(res.frontRoi < res.frontBreakEven) {
-                const lossPerOrder = (res.frontBreakEven - res.frontRoi) * adCost / res.frontRoi / (adCost/get('ppc')*(res.frontRoi*get('adCost')/get('avgTicket')/(adCost/get('ppc')))); 
-                // 简化算每单亏损：UnitNetProfitFront - CPA
-                // CPA = AvgTicket / FrontROI. 
-                // Profit = UnitNetProfitFront - CPA.
                 const cpa = get('avgTicket') / res.frontRoi;
                 const profitPerPaid = res.unitNetProfitFront - cpa;
                 
@@ -630,12 +593,10 @@
                 msg.push(`<p class="text-green-600 font-bold">✅ 前端已盈利：</p><p>首单能自己造血，这很难得。只要量能跑起来，你就是印钞机。</p>`);
             }
 
-            // 2. LTV 欺诈诊断
             if(get('ltvAdd') === 0 && (currentCategory === 'beauty' || currentCategory === 'fashion')) {
                 msg.push(`<p class="text-orange-600 mt-2 font-bold">⚠️ LTV为0是自欺欺人：</p><p>做美妆/服饰不算复购就是耍流氓。点击上方“填入参考值”，看看加上复购你能赚多少。</p>`);
             }
 
-            // 3. 综合诊断
             if(res.netProfitTotal < 0) {
                 msg.push(`<p class="text-slate-500 mt-2">☠️ 最终结论：算了自然流和复购还是亏。你的问题不在投放，在品（后端成本太重）或者退货率失控。</p>`);
             }
@@ -643,12 +604,10 @@
             box.innerHTML = msg.join('');
         }
 
-        // 沙盘推演逻辑 (带颜色反馈)
         function updateSim() {
             const ppcChange = parseInt(document.getElementById('simPpc').value);
             const cvrChange = parseInt(document.getElementById('simCvr').value);
             
-            // 更新滑块颜色类
             const ppcRange = document.getElementById('simPpc');
             ppcRange.className = `w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer ${ppcChange > 0 ? 'danger' : (ppcChange < 0 ? 'safe' : '')}`;
             
@@ -665,11 +624,11 @@
             el.innerText = `¥ ${res.netProfitTotal.toLocaleString('en-US', {maximumFractionDigits:0})}`;
             
             if(res.netProfitTotal < 0) {
-                el.className = "font-bold text-red-600 text-lg ml-1 font-mono";
-                box.className = "bg-red-50 p-3 rounded border border-red-200 mt-2 transition-colors duration-300";
+                el.className = "font-bold text-red-600 text-2xl ml-2 font-mono";
+                box.className = "bg-red-50 p-5 rounded-lg border border-red-200 mt-4 transition-colors duration-300";
             } else {
-                el.className = "font-bold text-green-600 text-lg ml-1 font-mono";
-                box.className = "bg-green-50 p-3 rounded border border-green-200 mt-2 transition-colors duration-300";
+                el.className = "font-bold text-green-600 text-2xl ml-2 font-mono";
+                box.className = "bg-green-50 p-5 rounded-lg border border-green-200 mt-4 transition-colors duration-300";
             }
         }
 
@@ -709,12 +668,12 @@
             const history = JSON.parse(localStorage.getItem('roi_history') || '[]');
             const list = document.getElementById('historyList');
             if(history.length === 0) {
-                list.innerHTML = '<p class="text-sm text-gray-400 text-center py-10">暂无记录</p>';
+                list.innerHTML = '<p class="text-base text-gray-400 text-center py-10">暂无记录</p>';
                 return;
             }
             list.innerHTML = history.map(h => `
-                <div class="bg-gray-50 p-3 rounded border-l-4 ${h.profit >= 0 ? 'border-green-400' : 'border-red-400'} text-xs">
-                    <div class="flex justify-between text-gray-400 mb-1">
+                <div class="bg-gray-50 p-4 rounded-lg border-l-4 ${h.profit >= 0 ? 'border-green-400' : 'border-red-400'} text-sm">
+                    <div class="flex justify-between text-gray-400 mb-2">
                         <span>${h.time.split(' ')[0]}</span>
                         <span>全ROI: ${h.roi.toFixed(2)}</span>
                     </div>
