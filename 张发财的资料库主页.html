@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张发财的资料库 3.0 - 官方指南</title>
+    <!-- 引入 Tailwind CSS (CDN版，无需配置) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Lucide 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 字体优化 -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e5e7eb; border-radius: 20px; }
+        /* 动画关键帧 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-[#fcfcfc] text-[#1f2329] antialiased overflow-hidden h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- 顶部导航栏 -->
+    <header id="main-header" class="h-14 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-50 transition-all duration-200 bg-white border-b border-transparent">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="flex items-center text-sm whitespace-nowrap overflow-hidden">
+                <span class="text-gray-500 hover:text-gray-900 cursor-pointer transition-colors font-medium">知识库</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 mx-1 text-gray-300"></i>
+                <span class="text-gray-500 hover:text-gray-900 cursor-pointer transition-colors">张发财的资料库 3.0</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 mx-1 text-gray-300"></i>
+                <span class="text-gray-900 font-semibold truncate bg-gray-100 px-2 py-0.5 rounded text-xs sm:text-sm">👋 必读：写在前面</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-md text-sm transition-colors text-gray-600 font-medium">
+                <i data-lucide="star" class="w-4 h-4 text-gray-400"></i>
+                <span>收藏</span>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md text-sm transition-all shadow-sm hover:shadow">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+                <span class="hidden sm:inline font-medium">分享给朋友</span>
+            </button>
+            <button class="p-1.5 hover:bg-gray-100 rounded-md text-gray-500">
+                <i data-lucide="more-horizontal" class="w-[18px] h-[18px]"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主滚动区域 -->
+    <div id="scroll-container" class="flex-1 overflow-y-auto custom-scrollbar scroll-smooth">
+        <div class="max-w-[1200px] mx-auto flex gap-12 px-4 sm:px-8 py-8 sm:py-12">
+            
+            <!-- 左侧核心内容 -->
+            <main class="flex-1 min-w-0 max-w-[800px] mx-auto">
+                
+                <!-- 封面图 - 还原 V3.0 风格 -->
+                <div class="relative w-full h-56 bg-[#ebf5ff] rounded-xl overflow-hidden mb-10 border border-blue-50 select-none group">
+                    <!-- 点阵背景 -->
+                    <div class="absolute inset-0 opacity-30" 
+                         style="background-image: radial-gradient(#3b82f6 1.5px, transparent 1.5px); background-size: 24px 24px;">
+                    </div>
+                    
+                    <!-- 内容容器 -->
+                    <div class="absolute inset-0 flex flex-col justify-center px-8 sm:px-12">
+                        <!-- 巨大的 V3.0 -->
+                         <div class="font-black text-[120px] sm:text-[160px] leading-none text-[#d6e4ff] opacity-60 absolute -left-6 bottom-[-30px] sm:bottom-[-45px] pointer-events-none mix-blend-multiply tracking-tighter">
+                            V3.0
+                         </div>
+
+                         <!-- 核心标题 -->
+                         <div class="relative z-10 ml-2 mt-2">
+                             <h1 class="text-3xl sm:text-5xl font-black text-[#172554] tracking-tight mb-4 drop-shadow-sm">
+                                张发财的资料库
+                             </h1>
+                             <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 backdrop-blur-md rounded-md border border-white/60 shadow-sm group-hover:bg-white transition-colors cursor-default">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                <span class="text-[10px] sm:text-xs font-bold text-blue-700 tracking-[0.15em] uppercase">
+                                    Official Guide
+                                </span>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+                
+                <!-- 进入知识库按钮 -->
+                <div class="mb-10 text-center">
+                    <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-bold text-lg shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300 group">
+                        <i data-lucide="book" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        <span>立即进入知识库</span>
+                        <i data-lucide="external-link" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <p class="text-sm text-gray-500 mt-2">点击上方按钮，访问完整的张发财资料库</p>
+                </div>
+
+                <!-- 标题与信息 -->
+                <div class="mb-10 border-b border-gray-100 pb-8">
+                    <div class="text-5xl mb-6 animate-fade-in-up">👋</div>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-[1.3] tracking-tight">
+                        必读：写在前面 —— <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">为什么你需要这个资料库？</span>
+                    </h1>
+                    
+                    <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-400">
+                        <div class="flex items-center gap-2 hover:bg-gray-50 p-1 pr-3 rounded-full transition-colors cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white shadow-sm">张</div>
+                            <span class="text-gray-700 font-medium">张发财</span>
+                        </div>
+                        <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 2025年10月02日</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> 阅读 10w+</span>
+                    </div>
+                </div>
+
+                <!-- 正文 -->
+                <article class="space-y-8 text-[#24292f] leading-[1.8] text-[16px] sm:text-[17px]">
+                    
+                    <!-- 核心使命 -->
+                    <div id="mission" class="content-section bg-blue-50/50 border-l-4 border-blue-500 rounded-r-lg p-5 sm:p-6 flex gap-4 items-start hover:bg-blue-50 transition-colors">
+                        <span class="text-2xl mt-0.5">💡</span>
+                        <div>
+                            <p class="font-bold text-gray-900 mb-2 text-lg">核心使命</p>
+                            <p class="text-gray-700 text-sm sm:text-base leading-relaxed">
+                                在这个充满不确定性的电商环境里，我只做一件事：<strong class="text-blue-700 bg-blue-100/50 px-1 rounded">让运营成长有迹可循。</strong><br/>
+                                我不卖焦虑，不讲正确的废话。这里只有经过实战验证的策略、SOP和避坑指南。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <p>你好，我是<strong>张发财</strong>。</p>
+                        <p>如果你点开了这个页面，说明你可能正处于电商运营的某个“阵痛期”。或许是平台规则变了，流量腰斩；或许是刚毕业0经验，面试处处碰壁；又或许是做了三年运营，感觉成了单纯的“工具人”，晋升无望。</p>
+                    </div>
+
+                    <!-- 现状 -->
+                    <div id="status" class="content-section pt-4">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 group cursor-pointer text-gray-900">
+                            <span class="text-gray-300 group-hover:text-blue-500 transition-colors">#</span>
+                            我们面临的现状
+                        </h2>
+
+                        <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm space-y-4">
+                            <div class="flex gap-3">
+                                <div class="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></div>
+                                <p><strong class="text-gray-900">知识碎片化：</strong> <span class="text-gray-600">看了几百篇公众号文章，听了无数场直播，依然拼凑不出一个完整的运营体系。</span></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></div>
+                                <p><strong class="text-gray-900">平台变化快：</strong> <span class="text-gray-600">昨天还在研究搜索权重，今天都在谈全站推广，跟不上节奏就是死路一条。</span></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></div>
+                                <p><strong class="text-gray-900">成长无指导：</strong> <span class="text-gray-600">只有KPI的压力，没有方法论的指导，野蛮生长往往伴随着遍体鳞伤。</span></p>
+                            </div>
+                        </div>
+
+                        <div class="my-8 relative pl-6 py-2">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gray-200 rounded-full"></div>
+                            <p class="italic text-gray-500 text-lg font-serif">“大多数运营的瓶颈，不是不够努力，而是陷入了低水平的重复建设。”</p>
+                        </div>
+                    </div>
+
+                    <!-- 价值 -->
+                    <div id="value" class="content-section pt-4">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 group cursor-pointer text-gray-900">
+                            <span class="text-gray-300 group-hover:text-blue-500 transition-colors">#</span>
+                            资料库 3.0 能给你什么？
+                        </h2>
+                        
+                        <p class="mb-6 text-gray-600">这不是一个简单的文件堆砌，而是一个<strong>动态更新的知识操作系统</strong>。</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Card 1 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="layout" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">平台实战</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">淘宝、京东、抖音、小红书全覆盖。从底层流量逻辑到具体的活动报名SOP。</p>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="trending-up" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-green-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">能力进阶</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">高转化文案怎么写？数据分析报表怎么做？如何透过数据看本质？拒绝做表哥。</p>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="users" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-purple-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">职业成长</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">从专员到店长、经理的跃升路径。面试辅导、简历优化、团队管理心法。</p>
+                            </div>
+
+                            <!-- Card 4 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-orange-50 rounded-lg text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="hash" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-orange-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">工具模板</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">拿来即用的Excel测算表、日报周报模板、活动策划案PPT。提高效率。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div id="footer" class="content-section pt-8 pb-4">
+                        <h2 class="text-xl font-bold mb-4 text-gray-900">写在最后</h2>
+                        <div class="bg-gray-50 rounded-lg p-6 text-gray-600">
+                            <p class="mb-4">我不想做那种冷冰冰的培训机构，我希望这里是你的<strong>外脑</strong>和<strong>加油站</strong>。</p>
+                            <p class="font-medium text-gray-900">我是张发财，我们顶峰相见。</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 底部互动区 -->
+                <div class="border-t border-gray-100 mt-12 pt-8 flex items-center justify-between">
+                    <div class="flex gap-6">
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-500 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition-all group shadow-sm">
+                            <i data-lucide="thumbs-up" class="w-[18px] h-[18px] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium">有用 852</span>
+                        </button>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-500 hover:border-green-200 hover:text-green-600 hover:bg-green-50 transition-all group shadow-sm">
+                            <i data-lucide="message-square" class="w-[18px] h-[18px] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium">评论 128</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-300">Last edited 2 hours ago</div>
+                </div>
+                
+                <div class="h-20"></div>
+            </main>
+
+            <!-- 右侧悬浮目录 -->
+            <aside class="hidden xl:block w-64 shrink-0">
+                <div class="sticky top-24 transition-all duration-300">
+                    <div class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider pl-4">ON THIS PAGE</div>
+                    <ul class="space-y-1 relative border-l border-gray-100" id="toc-list">
+                        <!-- 蓝色进度条 -->
+                        <div id="toc-indicator" class="absolute left-[-1px] w-[2px] bg-blue-600 transition-all duration-300 ease-out h-6" style="top: 4px; opacity: 1;"></div>
+
+                        <li><a href="#mission" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-blue-600 font-medium" data-target="mission">核心使命</a></li>
+                        <li><a href="#status" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-gray-500" data-target="status">我们面临的现状</a></li>
+                        <li><a href="#value" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-gray-500" data-target="value">资料库 3.0 的价值</a></li>
+                        <li><a href="#footer" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-gray-500" data-target="footer">写在最后</a></li>
+                    </ul>
+
+                    <!-- CTA 广告 -->
+                    <div class="mt-8 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100/50">
+                        <h4 class="font-bold text-blue-900 text-sm mb-2">加入会员群</h4>
+                        <p class="text-xs text-blue-700/80 mb-3 leading-relaxed">获取最新电商资讯，与2000+运营同行交流。</p>
+                        <button class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shadow-blue-200">立即加入</button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <!-- JavaScript 交互逻辑 -->
+    <script>
+        // 1. 初始化图标
+        lucide.createIcons();
+
+        // 2. 滚动监听与 TOC 高亮逻辑
+        const scrollContainer = document.getElementById('scroll-container');
+        const header = document.getElementById('main-header');
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const indicator = document.getElementById('toc-indicator');
+        const sections = ['mission', 'status', 'value', 'footer'];
+
+        scrollContainer.addEventListener('scroll', () => {
+            // Header 磨砂效果
+            if (scrollContainer.scrollTop > 10) {
+                header.classList.add('bg-white/90', 'backdrop-blur-md', 'border-gray-200/50', 'shadow-sm');
+                header.classList.remove('bg-white', 'border-transparent');
+            } else {
+                header.classList.remove('bg-white/90', 'backdrop-blur-md', 'border-gray-200/50', 'shadow-sm');
+                header.classList.add('bg-white', 'border-transparent');
+            }
+
+            // 目录高亮计算
+            let currentSection = '';
+            for (const sectionId of sections) {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    // 简单的判断逻辑：当元素顶部接近视口顶部时
+                    if (rect.top <= 300) {
+                        currentSection = sectionId;
+                    }
+                }
+            }
+
+            // 更新 TOC 样式
+            if (currentSection) {
+                tocLinks.forEach(link => {
+                    link.classList.remove('text-blue-600', 'font-medium');
+                    link.classList.add('text-gray-500');
+                    if (link.dataset.target === currentSection) {
+                        link.classList.add('text-blue-600', 'font-medium');
+                        link.classList.remove('text-gray-500');
+                    }
+                });
+
+                // 移动指示条
+                const index = sections.indexOf(currentSection);
+                if (index !== -1) {
+                    indicator.style.top = `${4 + (index * 32)}px`; // 32px 是每个 li 的高度间距估算
+                    indicator.style.opacity = '1';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
