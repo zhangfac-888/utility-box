@@ -25,33 +25,6 @@
 </head>
 <body class="bg-[#fcfcfc] text-[#1f2329] antialiased overflow-hidden h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
 
-    <!-- 顶部导航栏 -->
-    <header id="main-header" class="h-14 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-50 transition-all duration-200 bg-white border-b border-transparent">
-        <div class="flex items-center gap-3 overflow-hidden">
-            <div class="flex items-center text-sm whitespace-nowrap overflow-hidden">
-                <span class="text-gray-500 hover:text-gray-900 cursor-pointer transition-colors font-medium">知识库</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 mx-1 text-gray-300"></i>
-                <span class="text-gray-500 hover:text-gray-900 cursor-pointer transition-colors">张发财的资料库 3.0</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 mx-1 text-gray-300"></i>
-                <span class="text-gray-900 font-semibold truncate bg-gray-100 px-2 py-0.5 rounded text-xs sm:text-sm">👋 必读：写在前面</span>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2 shrink-0">
-            <button class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-md text-sm transition-colors text-gray-600 font-medium">
-                <i data-lucide="star" class="w-4 h-4 text-gray-400"></i>
-                <span>收藏</span>
-            </button>
-            <button class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md text-sm transition-all shadow-sm hover:shadow">
-                <i data-lucide="share-2" class="w-4 h-4"></i>
-                <span class="hidden sm:inline font-medium">分享给朋友</span>
-            </button>
-            <button class="p-1.5 hover:bg-gray-100 rounded-md text-gray-500">
-                <i data-lucide="more-horizontal" class="w-[18px] h-[18px]"></i>
-            </button>
-        </div>
-    </header>
-
     <!-- 主滚动区域 -->
     <div id="scroll-container" class="flex-1 overflow-y-auto custom-scrollbar scroll-smooth">
         <div class="max-w-[1200px] mx-auto flex gap-12 px-4 sm:px-8 py-8 sm:py-12">
@@ -253,7 +226,7 @@
 
             <!-- 右侧悬浮目录 -->
             <aside class="hidden xl:block w-64 shrink-0">
-                <div class="sticky top-24 transition-all duration-300">
+                <div class="sticky top-4 transition-all duration-300"> <!-- 调整了top值，因为顶栏被移除了 -->
                     <div class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider pl-4">ON THIS PAGE</div>
                     <ul class="space-y-1 relative border-l border-gray-100" id="toc-list">
                         <!-- 蓝色进度条 -->
@@ -268,8 +241,13 @@
                     <!-- CTA 广告 -->
                     <div class="mt-8 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100/50">
                         <h4 class="font-bold text-blue-900 text-sm mb-2">加入会员群</h4>
-                        <p class="text-xs text-blue-700/80 mb-3 leading-relaxed">获取最新电商资讯，与2000+运营同行交流。</p>
-                        <button class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shadow-blue-200">立即加入</button>
+                        <p class="text-xs text-blue-700/80 mb-3 leading-relaxed">✅ 群内共享知识库最新更新通知<br>✅ 每日运营干货分享+案例拆解<br>✅ 张发财不定期在线答疑</p>
+                        <p class="text-xs text-red-500 mb-3 leading-relaxed">⚠️ 加入前请先查看商品详情锁定VIP权益</p>
+                        <a href="https://www.xiaohongshu.com/goods-detail/664e075dca6baf00011bc06e?t=1764003375637&xsec_token=ABG20gHhnXxYJkeQ79rC5c-WT9CPU_RCemQfwUqOwlDkw%3D&xsec_source=pc_arkselfshare" target="_blank" class="flex items-center justify-center w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shadow-blue-200 group">
+                            <span>查看商品详情</span>
+                            <i data-lucide="external-link" class="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform"></i>
+                        </a>
+                        <p class="text-[10px] text-gray-400 mt-2 text-center">下单后私信客服获取群聊入口</p>
                     </div>
                 </div>
             </aside>
@@ -284,21 +262,11 @@
 
         // 2. 滚动监听与 TOC 高亮逻辑
         const scrollContainer = document.getElementById('scroll-container');
-        const header = document.getElementById('main-header');
         const tocLinks = document.querySelectorAll('.toc-link');
         const indicator = document.getElementById('toc-indicator');
         const sections = ['mission', 'status', 'value', 'footer'];
 
         scrollContainer.addEventListener('scroll', () => {
-            // Header 磨砂效果
-            if (scrollContainer.scrollTop > 10) {
-                header.classList.add('bg-white/90', 'backdrop-blur-md', 'border-gray-200/50', 'shadow-sm');
-                header.classList.remove('bg-white', 'border-transparent');
-            } else {
-                header.classList.remove('bg-white/90', 'backdrop-blur-md', 'border-gray-200/50', 'shadow-sm');
-                header.classList.add('bg-white', 'border-transparent');
-            }
-
             // 目录高亮计算
             let currentSection = '';
             for (const sectionId of sections) {
