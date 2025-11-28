@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张发财的资料库 - 深度定价模型 V3.5 (定向分流版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        /* 基础设置 */
+        body { 
+            font-family: 'Noto Sans SC', sans-serif; 
+            background-color: #f8fafc; /* 更有质感的灰白背景 */
+            color: #334155;
+        }
+        
+        /* 数字专用字体，防止跳动 */
+        .tabular-nums { font-variant-numeric: tabular-nums; font-family: 'SF Pro Display', ui-sans-serif, system-ui, sans-serif; }
+
+        /* 卡片风格升级：更柔和的阴影和圆角 */
+        .card { 
+            background: white; 
+            border-radius: 16px; 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05); 
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 顶部KPI卡片特效 */
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-icon-bg {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 5rem;
+            opacity: 0.08;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
+
+        /* 滑块样式优化 */
+        input[type=range] { 
+            height: 6px; 
+            border-radius: 99px; 
+            background: #e2e8f0; 
+            outline: none; 
+            transition: background 0.2s;
+        }
+        input[type=range]:hover {
+            background: #cbd5e1;
+        }
+        
+        /* 字体大小保持大号清晰 */
+        .input-label { font-size: 1rem; font-weight: 600; color: #475569; }
+        .input-val { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+
+        /* 滚动条 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 历史记录项 */
+        .history-item { 
+            border-left: 4px solid transparent; 
+            transition: all 0.2s;
+        }
+        .history-item:hover { 
+            background-color: #f0f9ff; 
+            border-left-color: #007BFF; 
+            transform: translateX(4px);
+        }
+
+        /* Toast */
+        #toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
+        .toast {
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+        }
+        .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+
+        /* 左侧面板区块背景 */
+        .control-section {
+            background-color: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="text-base antialiased"> 
+
+    <div id="toast-container"></div>
+
+    <!-- 顶部导航 -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-md bg-white/90">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-18 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#007BFF] rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <i class="fas fa-calculator text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900 tracking-tight">张发财的利润“显微镜”</h1>
+                        <p class="text-xs text-gray-500 font-medium">深度定价模型 V3.5</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                     <!-- 顶部导航链接跳转 (保持飞书链接) -->
+                     <a href="https://ai.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" 
+                        class="group flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-[#007BFF] font-bold text-sm hover:bg-[#007BFF] hover:text-white transition-all duration-300 border border-blue-100 hover:shadow-lg hover:shadow-blue-500/20" 
+                        onclick="showToast('正在前往张发财的资料库 Wiki...', 'info')">
+                        <i class="fas fa-book group-hover:text-yellow-300 transition-colors"></i> 
+                        <span>张发财的资料库</span>
+                        <i class="fas fa-arrow-right text-xs opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 核心仪表盘 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- 1. 定价 -->
+            <div class="card p-6 kpi-card border-l-4 border-l-[#007BFF]">
+                <div class="text-slate-500 text-sm font-bold uppercase tracking-wider">最终定价 (含税)</div>
+                <div class="mt-4 flex items-baseline">
+                    <span class="text-3xl font-bold text-slate-800">¥</span>
+                    <span class="text-5xl font-extrabold text-[#007BFF] ml-1 tabular-nums" id="d-price">--</span>
+                </div>
+                <div class="mt-2 text-sm text-slate-500 font-medium bg-slate-50 inline-block px-2 py-1 rounded">
+                    不含税: <span class="tabular-nums font-bold text-slate-700">¥<span id="d-revenue-notax">--</span></span>
+                </div>
+                <i class="fas fa-tag kpi-icon-bg text-[#007BFF]"></i>
+            </div>
+            
+            <!-- 2. 成本 -->
+            <div class="card p-6 kpi-card border-l-4 border-l-red-500">
+                <div class="text-slate-500 text-sm font-bold uppercase tracking-wider">综合单件总成本</div>
+                <div class="mt-4 flex items-baseline">
+                    <span class="text-3xl font-bold text-slate-800">¥</span>
+                    <span class="text-5xl font-extrabold text-slate-800 ml-1 tabular-nums" id="d-total-cost">--</span>
+                </div>
+                <div class="mt-2 text-sm text-red-500 font-medium bg-red-50 inline-block px-2 py-1 rounded">
+                    含采购、物流、损耗等
+                </div>
+                <i class="fas fa-hand-holding-usd kpi-icon-bg text-red-500"></i>
+            </div>
+
+            <!-- 3. 利润 -->
+            <div class="card p-6 kpi-card border-l-4 border-l-green-500">
+                <div class="text-slate-500 text-sm font-bold uppercase tracking-wider">预估净利润</div>
+                <div class="mt-4 flex items-baseline">
+                    <span class="text-3xl font-bold" id="d-profit-symbol">¥</span>
+                    <span class="text-5xl font-extrabold ml-1 tabular-nums" id="d-profit">--</span>
+                </div>
+                <div class="mt-2 text-sm font-bold px-3 py-1 rounded-full inline-block transition-colors duration-300" id="d-margin-bg">
+                    净利率: <span class="tabular-nums" id="d-margin">--</span>%
+                </div>
+                <i class="fas fa-coins kpi-icon-bg text-green-500"></i>
+            </div>
+
+            <!-- 4. ROI -->
+            <div class="card p-6 kpi-card border-l-4 border-l-yellow-500 flex flex-col justify-center">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-slate-500 text-sm font-bold uppercase tracking-wider">盈亏平衡 ROI</span>
+                    <span class="text-3xl font-extrabold text-slate-800 tabular-nums" id="d-roi">--</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                    <div class="bg-yellow-500 h-full rounded-full transition-all duration-500" id="roi-bar" style="width: 0%"></div>
+                </div>
+                <div class="mt-3 text-sm text-slate-400" id="roi-text">需达到此投产比才保本</div>
+                <i class="fas fa-balance-scale kpi-icon-bg text-yellow-500"></i>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            
+            <!-- 左侧：深度控制面板 -->
+            <div class="xl:col-span-4 space-y-6">
+                
+                <!-- 操作栏 -->
+                <div class="card p-2 flex gap-2 sticky top-24 z-10 shadow-lg border-blue-100">
+                    <button id="btn-reset" onclick="resetToDefault()" class="flex-1 bg-white hover:bg-slate-50 text-slate-600 py-3 rounded-xl border border-slate-200 font-bold transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fas fa-undo-alt text-slate-400"></i> 重置
+                    </button>
+                    <button id="btn-save" onclick="saveSnapshot()" class="flex-1 bg-[#007BFF] hover:bg-blue-600 text-white py-3 rounded-xl shadow-md shadow-blue-500/30 font-bold transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i> 记录
+                    </button>
+                </div>
+
+                <!-- 控制台主体 -->
+                <div class="card p-6 space-y-8">
+                    
+                    <!-- 1. 供应链 -->
+                    <div class="control-section p-5">
+                        <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center">
+                            <span class="w-8 h-8 rounded-lg bg-blue-100 text-[#007BFF] flex items-center justify-center mr-3 text-sm"><i class="fas fa-box-open"></i></span>
+                            供应链成本
+                            <span class="ml-auto text-sm font-normal text-slate-400 tabular-nums bg-white px-2 py-1 rounded border border-slate-100">¥<span id="group-supply-total">0</span></span>
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">裸品采购价</label>
+                                    <span class="input-val tabular-nums">¥<span id="val-cost-base">--</span></span>
+                                </div>
+                                <input type="range" id="in-cost-base" min="0" max="1000" value="120" class="w-full accent-[#007BFF] cursor-pointer">
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">包材/辅料</label>
+                                    <span class="input-val tabular-nums">¥<span id="val-cost-pack">--</span></span>
+                                </div>
+                                <input type="range" id="in-cost-pack" min="0" max="50" step="0.5" value="5" class="w-full accent-[#007BFF] cursor-pointer">
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">头程运费</label>
+                                    <span class="input-val tabular-nums">¥<span id="val-cost-freight">--</span></span>
+                                </div>
+                                <input type="range" id="in-cost-freight" min="0" max="50" step="0.5" value="5" class="w-full accent-[#007BFF] cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 运营 -->
+                    <div class="control-section p-5">
+                        <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center">
+                            <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-500 flex items-center justify-center mr-3 text-sm"><i class="fas fa-truck"></i></span>
+                            运营与履约
+                        </h3>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">快递费</label>
+                                    <span class="input-val tabular-nums text-indigo-600">¥<span id="val-logistic-fee">--</span></span>
+                                </div>
+                                <input type="range" id="in-logistic-fee" min="0" max="50" step="0.5" value="8" class="w-full accent-indigo-500 cursor-pointer">
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label text-red-500"><i class="fas fa-exclamation-circle mr-1"></i>退货损耗率</label>
+                                    <span class="input-val tabular-nums text-red-500"><span id="val-loss-rate">--</span>%</span>
+                                </div>
+                                <input type="range" id="in-loss-rate" min="0" max="30" step="1" value="5" class="w-full accent-red-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 流量 -->
+                    <div class="control-section p-5">
+                        <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center">
+                            <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-500 flex items-center justify-center mr-3 text-sm"><i class="fas fa-bullhorn"></i></span>
+                            流量与定价
+                        </h3>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">销售定价</label>
+                                    <span class="input-val tabular-nums">¥<span id="val-price">--</span></span>
+                                </div>
+                                <input type="range" id="in-price" min="0" max="3000" value="268" class="w-full accent-slate-700 cursor-pointer">
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">营销推广占比</label>
+                                    <span class="input-val tabular-nums text-pink-600"><span id="val-marketing-rate">--</span>%</span>
+                                </div>
+                                <input type="range" id="in-marketing-rate" min="0" max="60" step="1" value="20" class="w-full accent-pink-500 cursor-pointer">
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <label class="input-label">平台佣金点</label>
+                                    <span class="input-val tabular-nums text-orange-500"><span id="val-commission-rate">--</span>%</span>
+                                </div>
+                                <input type="range" id="in-commission-rate" min="0" max="15" step="0.5" value="5" class="w-full accent-orange-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="card p-6" id="history-container" style="display:none;">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-700 text-base flex items-center">
+                            <i class="fas fa-history mr-2 text-slate-400"></i>推演记录
+                        </h3>
+                        <button onclick="clearHistory()" class="text-xs text-red-500 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors">清空</button>
+                    </div>
+                    <div id="history-list" class="space-y-2 max-h-48 overflow-y-auto custom-scroll p-1">
+                        <!-- History Items -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 右侧：图表与分析 -->
+            <div class="xl:col-span-8 space-y-6">
+                
+                <!-- 瀑布流 -->
+                <div class="card p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-slate-800">利润还原瀑布图</h3>
+                        <div class="text-sm text-slate-400 bg-slate-50 px-3 py-1 rounded-full"><i class="fas fa-info-circle mr-1"></i>实时计算</div>
+                    </div>
+                    <div id="mainChart" class="w-full h-[480px]"></div>
+                    
+                    <!-- 智能洞察 -->
+                    <div class="mt-6 bg-blue-50/50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
+                        <div class="mt-1 w-6 h-6 rounded-full bg-[#007BFF] text-white flex items-center justify-center flex-shrink-0 text-xs">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-[#007BFF] uppercase mb-1">张发财的运营诊断</div>
+                            <div id="insight-text" class="text-base text-slate-700 leading-relaxed font-medium">分析生成中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 双栏布局：成本饼图 + 敏感度预警 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6 flex flex-col">
+                        <h3 class="font-bold text-slate-700 text-lg mb-4">成本结构占比</h3>
+                        <div id="pieChart" class="w-full flex-grow min-h-[300px]"></div>
+                    </div>
+                    
+                    <div class="card p-8 bg-slate-800 text-white relative overflow-hidden flex flex-col justify-between">
+                        <!-- 装饰背景 -->
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-red-500 rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500 rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
+
+                        <div class="relative z-10">
+                            <h3 class="font-bold text-white text-lg mb-8 flex items-center">
+                                <i class="fas fa-skull-crossbones mr-2 text-red-400"></i>压力测试 & 预警
+                            </h3>
+                            <div class="space-y-8">
+                                <div class="group">
+                                    <div class="flex justify-between text-slate-400 text-sm mb-1 group-hover:text-white transition-colors">
+                                        如果推广费 +5% <span class="text-xs opacity-50">(变为<span id="sim-mkt-val">--</span>%)</span>
+                                    </div>
+                                    <div class="flex justify-between items-end border-b border-slate-700 pb-2">
+                                        <span class="text-sm text-slate-400">净利预测</span>
+                                        <span id="sim-mkt-rise" class="text-xl font-bold tabular-nums">Calculation...</span>
+                                    </div>
+                                </div>
+                                <div class="group">
+                                    <div class="flex justify-between text-slate-400 text-sm mb-1 group-hover:text-white transition-colors">
+                                        如果退货率 -> 15% <span class="text-xs opacity-50 text-red-400">高风险</span>
+                                    </div>
+                                    <div class="flex justify-between items-end border-b border-slate-700 pb-2">
+                                        <span class="text-sm text-slate-400">净利预测</span>
+                                        <span id="sim-return-rise" class="text-xl font-bold tabular-nums">Calculation...</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400 text-sm mb-1">保本底线售价 (不亏钱卖)</div>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-3xl font-extrabold text-yellow-400 tabular-nums">¥<span id="sim-breakeven">--</span></span>
+                                        <span class="text-xs text-slate-500">低于此价即亏损</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 资料库入口：横幅样式 (已更新为 GitHub 链接) -->
+                <div class="card p-0 overflow-hidden group cursor-pointer border-0 shadow-xl shadow-blue-200/50" onclick="window.open('https://zhangfac-888.github.io/utility-box/zhangfacrlh.html', '_blank'); showToast('正在前往张发财的资料库落地页...', 'info')">
+                    <!-- 修复背景色为纯 CSS 渐变 -->
+                    <div class="bg-gradient-to-r from-[#007BFF] to-blue-600 p-8 relative">
+                        <!-- 装饰图案 -->
+                        <i class="fas fa-book absolute right-10 top-1/2 -translate-y-1/2 text-[120px] text-white opacity-10 rotate-12 group-hover:rotate-0 group-hover:scale-110 transition-all duration-500"></i>
+                        
+                        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white mb-2">加入“张发财的资料库 3.0”</h3>
+                                <p class="text-blue-100 text-base max-w-xl">
+                                    只有数据没有认知是做不好电商的。获取全平台运营SOP、高转化文案模板及独家选品策略，让运营成长有迹可循。
+                                </p>
+                            </div>
+                            <button class="bg-white text-[#007BFF] font-bold py-3 px-8 rounded-full shadow-lg hover:bg-yellow-300 hover:text-slate-900 transition-all flex items-center whitespace-nowrap">
+                                立即加入 <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 通用工具 ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            let icon = 'fa-check-circle';
+            let color = '#10b981'; // green
+            if (type === 'error') { icon = 'fa-times-circle'; color = '#ef4444'; }
+            if (type === 'info') { icon = 'fa-info-circle'; color = '#007BFF'; }
+            toast.innerHTML = `<i class="fas ${icon}" style="color:${color}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.contains(toast) && container.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        const safeStorage = {
+            getItem: (key) => { try { return localStorage.getItem(key); } catch(e) { return null; } },
+            setItem: (key, val) => { try { localStorage.setItem(key, val); } catch(e) {} },
+            removeItem: (key) => { try { localStorage.removeItem(key); } catch(e) {} }
+        };
+
+        // --- 核心逻辑 ---
+        const defaultInputs = {
+            costBase: 120, costPack: 5, costFreight: 5, logisticFee: 8, lossRate: 5,
+            price: 268, marketingRate: 20, commissionRate: 5, taxRate: 13
+        };
+        const model = { inputs: { ...defaultInputs }, results: {} };
+
+        // DOM 缓存
+        const els = {
+            in: {}, val: {}, disp: {}, history: {}
+        };
+        
+        // 自动绑定ID
+        ['costBase','costPack','costFreight','logisticFee','lossRate','price','marketingRate','commissionRate'].forEach(key => {
+            els.in[key] = document.getElementById(`in-${key.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}`);
+            els.val[key] = document.getElementById(`val-${key.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}`);
+        });
+        els.val.groupSupplyTotal = document.getElementById('group-supply-total');
+        
+        // Manual mapping for display
+        els.disp = {
+            price: document.getElementById('d-price'),
+            revenueNoTax: document.getElementById('d-revenue-notax'),
+            totalCost: document.getElementById('d-total-cost'),
+            profit: document.getElementById('d-profit'),
+            profitSymbol: document.getElementById('d-profit-symbol'),
+            margin: document.getElementById('d-margin'),
+            marginBg: document.getElementById('d-margin-bg'),
+            roi: document.getElementById('d-roi'),
+            roiBar: document.getElementById('roi-bar'),
+            roiText: document.getElementById('roi-text'),
+            insight: document.getElementById('insight-text'),
+            simMkt: document.getElementById('sim-mkt-rise'),
+            simMktVal: document.getElementById('sim-mkt-val'),
+            simReturn: document.getElementById('sim-return-rise'),
+            simBreakeven: document.getElementById('sim-breakeven')
+        };
+        els.history.list = document.getElementById('history-list');
+        els.history.container = document.getElementById('history-container');
+
+        let mainChart = echarts.init(document.getElementById('mainChart'));
+        let pieChart = echarts.init(document.getElementById('pieChart'));
+
+        function calculate(inputs) {
+            const taxDivisor = 1 + (inputs.taxRate / 100);
+            const revenueNoTax = inputs.price / taxDivisor;
+            const supplyCost = inputs.costBase + inputs.costPack + inputs.costFreight;
+            const marketingFee = inputs.price * (inputs.marketingRate / 100);
+            const commissionFee = inputs.price * (inputs.commissionRate / 100);
+            const lossCost = (supplyCost + inputs.logisticFee) * (inputs.lossRate / 100) * 1.5; 
+            const logisticTotal = inputs.logisticFee; 
+            const totalOutflow = supplyCost + marketingFee + commissionFee + logisticTotal + lossCost;
+            const netProfit = revenueNoTax - totalOutflow;
+            const profitMargin = (netProfit / inputs.price) * 100;
+            const marginForAds = inputs.price - (supplyCost * taxDivisor) - (logisticTotal + lossCost) - commissionFee; 
+            const beRoi = inputs.price / marginForAds;
+            return { revenueNoTax, supplyCost, marketingFee, commissionFee, logisticTotal, lossCost, totalOutflow, netProfit, profitMargin, beRoi: beRoi > 0 ? beRoi : 999 };
+        }
+
+        function update(isFromHistory = false) {
+            // 1. 数据同步
+            const keys = Object.keys(els.in);
+            if (!isFromHistory) {
+                keys.forEach(k => model.inputs[k] = parseFloat(els.in[k].value));
+            } else {
+                keys.forEach(k => els.in[k].value = model.inputs[k]);
+            }
+
+            // 2. 界面更新
+            keys.forEach(k => els.val[k].innerText = model.inputs[k]);
+            els.val.groupSupplyTotal.innerText = (model.inputs.costBase + model.inputs.costPack + model.inputs.costFreight).toFixed(1);
+            if(els.disp.simMktVal) els.disp.simMktVal.innerText = model.inputs.marketingRate + 5;
+
+            // 3. 核心计算
+            const res = calculate(model.inputs);
+            model.results = res;
+
+            // 4. 渲染KPI
+            els.disp.price.innerText = model.inputs.price.toFixed(0);
+            els.disp.revenueNoTax.innerText = res.revenueNoTax.toFixed(1);
+            els.disp.totalCost.innerText = res.totalOutflow.toFixed(1);
+            
+            const absProfit = Math.abs(res.netProfit).toFixed(1);
+            els.disp.profit.innerText = absProfit;
+            els.disp.profitSymbol.innerText = res.netProfit >= 0 ? '¥' : '-¥';
+            els.disp.margin.innerText = res.profitMargin.toFixed(1);
+            
+            // ROI 进度条逻辑
+            const roiVal = res.beRoi > 20 ? 20 : res.beRoi;
+            els.disp.roi.innerText = res.beRoi > 20 ? '>20' : res.beRoi.toFixed(2);
+            let barWidth = (roiVal / 8) * 100; 
+            if(barWidth > 100) barWidth = 100;
+            els.disp.roiBar.style.width = `${barWidth}%`;
+            
+            // 颜色状态
+            if (res.netProfit > 0) {
+                els.disp.profit.className = "text-5xl font-extrabold ml-1 tabular-nums text-green-600";
+                els.disp.profitSymbol.className = "text-3xl font-bold text-green-600";
+                els.disp.marginBg.className = "mt-2 text-sm font-bold px-3 py-1 rounded-full inline-block bg-green-100 text-green-800 border border-green-200";
+            } else {
+                els.disp.profit.className = "text-5xl font-extrabold ml-1 tabular-nums text-red-600";
+                els.disp.profitSymbol.className = "text-3xl font-bold text-red-600";
+                els.disp.marginBg.className = "mt-2 text-sm font-bold px-3 py-1 rounded-full inline-block bg-red-100 text-red-800 border border-red-200";
+            }
+
+            // 5. 渲染图表
+            renderCharts(res);
+            runSimulations();
+        }
+
+        function renderCharts(res) {
+            // 瀑布图配置
+            const optionWater = {
+                tooltip: { 
+                    trigger: 'axis', 
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    textStyle: { color: '#334155', fontSize: 14 },
+                    formatter: function (params) { 
+                        var tar = params[1]; 
+                        return `<div class="font-bold mb-1">${tar.name}</div>
+                                <div class="text-[#007BFF]">¥${tar.value}</div>`; 
+                    } 
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+                xAxis: { 
+                    type: 'category', 
+                    data: ['收入(不含税)', '供应链', '营销', '平台佣金', '履约损耗', '净利润'],
+                    axisLabel: { fontSize: 13, color: '#64748b', interval:0 } 
+                },
+                yAxis: { type: 'value', axisLabel: { fontSize: 12, color: '#94a3b8' }, splitLine: { lineStyle: { type: 'dashed' } } },
+                series: [
+                    { name: '辅助', type: 'bar', stack: '总量', itemStyle: { barBorderColor: 'rgba(0,0,0,0)', color: 'rgba(0,0,0,0)' }, emphasis: { itemStyle: { barBorderColor: 'rgba(0,0,0,0)', color: 'rgba(0,0,0,0)' } }, data: [0, res.revenueNoTax - res.supplyCost, res.revenueNoTax - res.supplyCost - res.marketingFee, res.revenueNoTax - res.supplyCost - res.marketingFee - res.commissionFee, res.netProfit > 0 ? res.netProfit : 0, 0] },
+                    { 
+                        name: '数值', type: 'bar', stack: '总量', 
+                        label: { show: true, position: 'inside', fontSize: 13, formatter: '{c}' },
+                        itemStyle: { borderRadius: [4, 4, 0, 0] },
+                        data: [
+                            {value: res.revenueNoTax.toFixed(1), itemStyle: {color: '#94a3b8'}}, 
+                            {value: res.supplyCost.toFixed(1), itemStyle: {color: '#f87171'}}, 
+                            {value: res.marketingFee.toFixed(1), itemStyle: {color: '#f472b6'}}, 
+                            {value: res.commissionFee.toFixed(1), itemStyle: {color: '#fb923c'}}, 
+                            {value: (res.logisticTotal + res.lossCost).toFixed(1), itemStyle: {color: '#818cf8'}}, 
+                            {value: res.netProfit.toFixed(1), itemStyle: {color: res.netProfit > 0 ? '#10b981' : '#ef4444'}}
+                        ] 
+                    }
+                ]
+            };
+            mainChart.setOption(optionWater);
+
+            // 饼图配置
+            const optionPie = {
+                tooltip: { trigger: 'item', backgroundColor: 'rgba(255,255,255,0.95)', textStyle: {color:'#333'} },
+                series: [{
+                    type: 'pie',
+                    radius: ['50%', '75%'],
+                    itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+                    label: { show: false },
+                    data: [
+                        { value: res.supplyCost, name: '供应链' },
+                        { value: res.marketingFee, name: '营销推广' },
+                        { value: res.commissionFee, name: '平台扣点' },
+                        { value: res.logisticTotal, name: '发货物流' },
+                        { value: res.lossCost, name: '损耗/退货' }
+                    ],
+                    color: ['#f87171', '#f472b6', '#fb923c', '#818cf8', '#6366f1']
+                }]
+            };
+            pieChart.setOption(optionPie);
+
+            // 洞察文案
+            let text = "";
+            if (res.netProfit < 0) { text = `⚠ 警报：每单亏损 <span class="text-red-600 font-bold">${Math.abs(res.netProfit).toFixed(1)}</span> 元。这已经不是做生意了，这是在做慈善。请立即检查营销费率或提高售价！`; } 
+            else if (res.profitMargin < 10) { text = `⚠ 风险提示：净利率仅 <span class="text-yellow-600 font-bold">${res.profitMargin.toFixed(1)}%</span>。如履薄冰，任何细微的退货率波动或广告费上涨都会击穿利润防线。`; } 
+            else if (res.marketingFee > res.netProfit * 2) { text = `💡 流量黑洞：你在为平台打工。营销费用是净利润的 ${(res.marketingFee/res.netProfit).toFixed(1)} 倍。建议优化素材点击率或降低PPC。`; } 
+            else { text = `✅ 模型健康：净利率 <span class="text-green-600 font-bold">${res.profitMargin.toFixed(1)}%</span>，且抗风险能力尚可。在保持退货率稳定的前提下，可尝试放大付费流量。`; }
+            els.disp.insight.innerHTML = text;
+        }
+
+        function runSimulations() {
+            // 模拟1
+            const sim1 = calculate({...model.inputs, marketingRate: model.inputs.marketingRate + 5});
+            const diff1 = sim1.netProfit;
+            els.disp.simMkt.innerText = "¥" + diff1.toFixed(1);
+            els.disp.simMkt.className = diff1 < 0 ? "text-xl font-bold tabular-nums text-red-400" : "text-xl font-bold tabular-nums text-white";
+
+            // 模拟2
+            const sim2 = calculate({...model.inputs, lossRate: 15});
+            const diff2 = sim2.netProfit;
+            els.disp.simReturn.innerText = "¥" + diff2.toFixed(1);
+            els.disp.simReturn.className = diff2 < 0 ? "text-xl font-bold tabular-nums text-red-400" : "text-xl font-bold tabular-nums text-white";
+
+            // 保本计算
+            const supply = model.inputs.costBase + model.inputs.costPack + model.inputs.costFreight;
+            const log = model.inputs.logisticFee;
+            const lossFixed = (supply + log) * (model.inputs.lossRate / 100) * 1.5;
+            const fixedLike = supply + log + lossFixed;
+            const denominator = (1/1.13) - (model.inputs.commissionRate/100) - (model.inputs.marketingRate/100);
+            let bePrice = denominator <= 0 ? "无法保本" : (fixedLike / denominator).toFixed(0);
+            els.disp.simBreakeven.innerText = bePrice;
+        }
+
+        // --- 历史记录 & 辅助 ---
+        const HISTORY_KEY = 'zhangfacai_pricing_history';
+        function resetToDefault() { model.inputs = { ...defaultInputs }; update(); showToast("已重置为默认参数"); }
+        function saveSnapshot() {
+            const h = JSON.parse(safeStorage.getItem(HISTORY_KEY) || '[]');
+            const ts = new Date();
+            h.unshift({ ts: ts.getTime(), dateStr: `${ts.getHours()}:${ts.getMinutes().toString().padStart(2,'0')}`, inputs: {...model.inputs}, res: model.results });
+            if(h.length>10) h.pop();
+            safeStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+            renderHistory();
+            showToast("方案已保存");
+        }
+        function renderHistory() {
+            const h = JSON.parse(safeStorage.getItem(HISTORY_KEY) || '[]');
+            els.history.container.style.display = h.length ? 'block' : 'none';
+            els.history.list.innerHTML = h.map(item => `
+                <div class="history-item p-3 bg-slate-50 rounded-lg cursor-pointer border border-slate-100 mb-2" onclick='loadHistory(${JSON.stringify(item.inputs)})'>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-400">${item.dateStr}</span>
+                        <span class="font-bold ${item.res.netProfit>0?'text-green-600':'text-red-500'}">¥${item.res.netProfit.toFixed(1)}</span>
+                    </div>
+                    <div class="text-xs text-slate-600 mt-1">定${item.inputs.price} | 推${item.inputs.marketingRate}%</div>
+                </div>
+            `).join('');
+        }
+        function loadHistory(inputs) { model.inputs = inputs; update(); showToast("已加载历史方案"); }
+        function clearHistory() { safeStorage.removeItem(HISTORY_KEY); renderHistory(); showToast("历史记录已清空", "info"); }
+        window.loadHistory = loadHistory; // Expose to global for HTML onclick
+
+        // Init
+        Object.keys(els.in).forEach(k => els.in[k].addEventListener('input', () => update()));
+        window.addEventListener('resize', () => { mainChart.resize(); pieChart.resize(); });
+        renderHistory();
+        update();
+    </script>
+</body>
+</html>
