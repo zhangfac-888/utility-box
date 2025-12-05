@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全店生意决策罗盘 (v5.0 盈亏保本版) - 张发财</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+        
+        body { 
+            font-family: 'Noto Sans SC', sans-serif; 
+            background-color: #f1f5f9; 
+            color: #334155;
+            font-size: 16px; 
+        }
+
+        /* 移除数字输入框箭头 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); }
+        
+        .input-group:focus-within label { color: #0f172a; }
+        .input-group:focus-within input { border-color: #0f172a; }
+
+        /* 滑块样式 */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px; width: 20px;
+            border-radius: 50%;
+            background: #475569;
+            margin-top: -8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .scenario-btn.active {
+            background-color: #1e293b;
+            border-color: #1e293b;
+            color: #f8fafc;
+            font-weight: 700;
+        }
+        
+        /* 进度条动画 */
+        .progress-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .pulse-text { animation: pulse-text 2s infinite; }
+        @keyframes pulse-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 顶部导航 -->
+    <header class="bg-[#1e293b] text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-yellow-400 text-[#1e293b] rounded-lg transform -rotate-2 flex items-center justify-center font-black text-3xl shadow-lg border-2 border-white">财</div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-wide hidden sm:block">生意决策罗盘 <span class="text-xs bg-yellow-500 text-[#1e293b] px-2 py-0.5 rounded ml-2 font-bold uppercase align-middle">v5.0 盈亏保本版</span></h1>
+                    <h1 class="text-lg font-bold tracking-wide sm:hidden">生意决策罗盘 v5.0</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                 <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-[#1e293b] font-bold rounded-full transition-all shadow-lg hover:shadow-yellow-500/30 text-sm">
+                    <i class="fas fa-book-open"></i>
+                    <span>张发财的资料库</span>
+                </a>
+                <button onclick="resetForm()" class="p-2 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-redo-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 场景快速切换 -->
+    <div class="bg-white border-b border-gray-200 sticky top-[80px] z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 overflow-x-auto whitespace-nowrap scrollbar-hide flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-400 uppercase mr-2">载入模板:</span>
+            <button onclick="loadScenario('standard')" class="scenario-btn active px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                <i class="fas fa-store mr-1"></i> 标准电商
+            </button>
+            <button onclick="loadScenario('highMargin')" class="scenario-btn px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                <i class="fas fa-gem mr-1"></i> 高毛利/保健品
+            </button>
+            <button onclick="loadScenario('lowMargin')" class="scenario-btn px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                <i class="fas fa-box-open mr-1"></i> 义乌小商品
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        
+        <!-- 左侧：生意数据输入 (占7列) -->
+        <div class="xl:col-span-7 space-y-6">
+            
+            <!-- 模块1: 经营硬支出 (固定成本) -->
+            <div class="bg-white rounded-xl card-shadow border-t-4 border-slate-700 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 text-9xl text-slate-50 opacity-[0.05] pointer-events-none"><i class="fas fa-building"></i></div>
+                <div class="px-6 py-4 border-b border-gray-100 bg-slate-50 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <span class="w-8 h-8 bg-slate-800 text-white rounded-md flex items-center justify-center text-sm">1</span> 
+                        每月固定开支 (Overhead)
+                    </h2>
+                    <span class="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded">不论卖不卖都得花的钱</span>
+                </div>
+                <div class="p-6 grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">房租/水电/网费</label>
+                        <div class="relative">
+                            <span class="absolute left-0 top-2 text-gray-400 font-bold">¥</span>
+                            <input type="number" id="rentCost" class="w-full pl-6 text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition text-slate-700" value="5000" oninput="calc()">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">团队总工资 (含社保)</label>
+                        <div class="relative">
+                            <span class="absolute left-0 top-2 text-gray-400 font-bold">¥</span>
+                            <input type="number" id="laborCost" class="w-full pl-6 text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition text-slate-700" value="12000" oninput="calc()">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">软件/杂项/贷款</label>
+                        <div class="relative">
+                            <span class="absolute left-0 top-2 text-gray-400 font-bold">¥</span>
+                            <input type="number" id="miscCost" class="w-full pl-6 text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none transition text-slate-700" value="1000" oninput="calc()">
+                        </div>
+                    </div>
+                    <div class="col-span-2 md:col-span-3 pt-2">
+                         <div class="flex justify-between items-end bg-slate-100 p-3 rounded text-slate-600">
+                             <span class="text-sm font-bold">月固定总支出 (Fixed Cost):</span>
+                             <span class="text-xl font-black" id="totalFixedDisplay">¥ 18,000</span>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块2: 流量与销售 (月度预估) -->
+            <div class="bg-white rounded-xl card-shadow border-t-4 border-blue-600 relative overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-blue-50/50 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-sm">2</span>
+                        流量与销售预估 (月度)
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                        <div class="input-group">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">月推广预算</label>
+                            <input type="number" id="adBudget" class="w-full text-xl font-bold border-b-2 border-blue-200 bg-transparent py-1 focus:outline-none text-blue-900" value="30000" oninput="calc()">
+                        </div>
+                        <div class="input-group">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">预期投产比 (ROI)</label>
+                            <input type="number" id="targetRoi" class="w-full text-xl font-bold border-b-2 border-blue-200 bg-transparent py-1 focus:outline-none text-blue-900" value="3.5" step="0.1" oninput="calc()">
+                        </div>
+                        <div class="input-group">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">平均客单价</label>
+                            <input type="number" id="avgTicket" class="w-full text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="128" oninput="calc()">
+                        </div>
+                        <div class="input-group">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">自然流量占比</label>
+                            <div class="flex items-end gap-2">
+                                <input type="number" id="organicPercent" class="w-full text-xl font-bold border-b-2 border-green-200 bg-transparent py-1 focus:outline-none text-green-700" value="30" oninput="calc()">
+                                <span class="text-sm font-bold text-gray-400 mb-1">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 自动计算区域 -->
+                    <div class="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">预估月总GMV</div>
+                                <div class="text-lg font-black text-gray-800" id="estGmv">¥ 0</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">预估月总单量</div>
+                                <div class="text-lg font-black text-gray-800" id="estOrders">0</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">综合流量成本(ACOS)</div>
+                                <div class="text-lg font-black text-blue-600" id="estAcos">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块3: 单单要扣的钱 (变动成本) -->
+            <div class="bg-white rounded-xl card-shadow border-t-4 border-orange-500 relative overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-orange-50/50 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                         <span class="w-8 h-8 bg-orange-500 text-white rounded-md flex items-center justify-center text-sm">3</span>
+                         履约与变动成本 (Unit Economics)
+                    </h2>
+                </div>
+                <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">商品拿货成本</label>
+                        <input type="number" id="productCost" class="w-full text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="45" oninput="calc()">
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">打包+快递费</label>
+                        <input type="number" id="fulfillmentCost" class="w-full text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="5" oninput="calc()">
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">平台扣点 (%)</label>
+                        <input type="number" id="platformFee" class="w-full text-xl font-bold border-b-2 border-gray-200 bg-transparent py-1 focus:outline-none" value="5" oninput="calc()">
+                    </div>
+                     <div class="input-group">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1 text-red-500">仅退款/损耗率 (%)</label>
+                        <input type="number" id="lossRate" class="w-full text-xl font-bold border-b-2 border-red-200 bg-transparent py-1 focus:outline-none text-red-600" value="2" step="0.1" oninput="calc()">
+                    </div>
+                </div>
+                <!-- 退货板块 -->
+                <div class="px-6 pb-6 pt-0">
+                    <div class="flex items-center gap-4 bg-orange-50 p-3 rounded border border-orange-100">
+                        <div class="input-group flex-1">
+                            <label class="block text-xs font-bold text-orange-800 uppercase mb-1">退货率 (%)</label>
+                            <input type="number" id="returnRate" class="w-full font-bold bg-transparent border-b border-orange-300 focus:outline-none text-orange-900" value="15" oninput="calc()">
+                        </div>
+                        <div class="input-group flex-1">
+                            <label class="block text-xs font-bold text-orange-800 uppercase mb-1">退货损失(运费/包装)</label>
+                            <input type="number" id="returnCost" class="w-full font-bold bg-transparent border-b border-orange-300 focus:outline-none text-orange-900" value="6" oninput="calc()">
+                        </div>
+                        <div class="text-xs text-orange-600/70 font-medium max-w-[150px]">
+                            *退货不产生销售额，但会产生运费和包装损失
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 右侧：决策分析 (占5列) -->
+        <div class="xl:col-span-5 space-y-6 xl:sticky xl:top-24">
+            
+            <!-- 核心：保本点分析 -->
+            <div class="bg-slate-800 text-white rounded-xl shadow-2xl overflow-hidden">
+                <div class="p-6 border-b border-slate-700">
+                    <h3 class="text-sm font-bold text-yellow-400 uppercase tracking-wider mb-1">生意生死线</h3>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-3xl font-black text-white">保本GMV</div>
+                            <div class="text-4xl font-black text-white mt-1" id="beGmv">¥ --</div>
+                        </div>
+                         <div class="text-right">
+                             <div class="text-xs text-slate-400 mb-1">保本单量</div>
+                             <div class="text-xl font-mono font-bold text-yellow-400" id="beOrders">-- 单</div>
+                         </div>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-400 flex justify-between">
+                         <span>当前状态: <span id="safetyStatus" class="font-bold text-white">--</span></span>
+                         <span title="实际销售额超出保本线的比例">安全边际: <span id="safetyMargin" class="font-bold text-white">--%</span></span>
+                    </div>
+                </div>
+                
+                <!-- 进度条可视化 -->
+                <div class="bg-slate-900 px-6 py-6">
+                    <div class="relative h-4 bg-slate-700 rounded-full overflow-hidden">
+                        <!-- 保本线标记 -->
+                        <div class="absolute top-0 bottom-0 w-1 bg-white z-20 shadow-[0_0_10px_rgba(255,255,255,0.8)]" style="left: 50%" id="beMarker"></div>
+                        <!-- 实际进度 -->
+                        <div id="progressBar" class="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full w-0 progress-bar z-10"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 mt-2 font-mono">
+                        <span>¥0</span>
+                        <span class="text-white font-bold">保本线</span>
+                        <span id="maxBarScale">¥Double</span>
+                    </div>
+                    
+                    <div class="mt-6 bg-slate-800/50 rounded p-3 border border-slate-700/50">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-400">单笔订单贡献毛利</span>
+                            <span class="text-white font-bold" id="unitContribution">¥ 0.00</span>
+                        </div>
+                         <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">覆盖固定成本需卖</span>
+                            <span class="text-white font-bold" id="unitsToCover">0 单</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月度损益表 (P&L) -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center justify-between">
+                    <span><i class="fas fa-file-invoice-dollar text-blue-500 mr-2"></i> 预估月度损益表</span>
+                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">基于设定模型</span>
+                </h3>
+                
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">营业额 (GMV)</span>
+                        <span class="font-bold font-mono text-gray-800" id="plGmv">¥ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-red-400">
+                        <span class="pl-2 border-l-2 border-red-200">货品总成本</span>
+                        <span class="font-mono" id="plCogs">- ¥ 0</span>
+                    </div>
+                     <div class="flex justify-between items-center text-red-400">
+                        <span class="pl-2 border-l-2 border-red-200">履约与退货损耗</span>
+                        <span class="font-mono" id="plFulfillment">- ¥ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-blue-500">
+                        <span class="pl-2 border-l-2 border-blue-200">营销推广费</span>
+                        <span class="font-mono" id="plMarketing">- ¥ 0</span>
+                    </div>
+                     <div class="flex justify-between items-center text-gray-400">
+                        <span class="pl-2 border-l-2 border-gray-200">固定开支 (房租人力)</span>
+                        <span class="font-mono" id="plFixed">- ¥ 0</span>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 my-2 pt-2 flex justify-between items-center text-base">
+                        <span class="font-bold text-gray-800">净利润 (Net Profit)</span>
+                        <span class="font-black font-mono text-2xl" id="plNet">¥ 0</span>
+                    </div>
+                    <div class="flex justify-end">
+                         <span class="text-xs font-bold px-2 py-0.5 rounded" id="netMarginBadge">净利率 0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 张发财的毒舌点评 -->
+            <div class="bg-white rounded-xl card-shadow p-6 relative group hover:shadow-lg transition">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl text-gray-800">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-3">张发财的诊断</h3>
+                <div id="commentary" class="text-sm text-gray-600 space-y-2 leading-relaxed">
+                    <!-- JS 填充 -->
+                </div>
+                
+                 <!-- 资料库引流 -->
+                <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="block mt-5 pt-4 border-t border-gray-100">
+                     <div class="flex items-center justify-between text-slate-800 hover:text-blue-600 transition">
+                         <span class="text-xs font-bold"><i class="fas fa-crown text-yellow-500 mr-1"></i> 想把利润做厚？看这里</span>
+                         <i class="fas fa-arrow-right text-xs"></i>
+                     </div>
+                </a>
+            </div>
+
+        </div>
+    </main>
+    
+    <script>
+        // 场景预设
+        const scenarios = {
+            'standard': { 
+                rent: 5000, labor: 12000, misc: 1000,
+                adBudget: 30000, roi: 3.5, organic: 20,
+                ticket: 128, cost: 45, fulfill: 5, platform: 5,
+                loss: 1, returnRate: 15, returnCost: 6
+            },
+            'highMargin': { 
+                rent: 8000, labor: 20000, misc: 2000,
+                adBudget: 50000, roi: 2.5, organic: 10,
+                ticket: 299, cost: 40, fulfill: 8, platform: 4,
+                loss: 0.5, returnRate: 5, returnCost: 10
+            },
+            'lowMargin': { 
+                rent: 3000, labor: 5000, misc: 500,
+                adBudget: 10000, roi: 6.0, organic: 50,
+                ticket: 9.9, cost: 4.5, fulfill: 2.2, platform: 3,
+                loss: 1, returnRate: 2, returnCost: 3
+            }
+        };
+
+        function get(id) { return parseFloat(document.getElementById(id).value) || 0; }
+        function set(id, val) { 
+            const el = document.getElementById(id);
+            if(el.tagName === 'INPUT') el.value = val;
+            else el.innerText = val;
+        }
+
+        function loadScenario(type) {
+            const s = scenarios[type];
+            document.getElementById('rentCost').value = s.rent;
+            document.getElementById('laborCost').value = s.labor;
+            document.getElementById('miscCost').value = s.misc;
+            document.getElementById('adBudget').value = s.adBudget;
+            document.getElementById('targetRoi').value = s.roi;
+            document.getElementById('organicPercent').value = s.organic;
+            document.getElementById('avgTicket').value = s.ticket;
+            document.getElementById('productCost').value = s.cost;
+            document.getElementById('fulfillmentCost').value = s.fulfill;
+            document.getElementById('platformFee').value = s.platform;
+            document.getElementById('lossRate').value = s.loss;
+            document.getElementById('returnRate').value = s.returnRate;
+            document.getElementById('returnCost').value = s.returnCost;
+
+            // 按钮样式切换
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            calc();
+        }
+
+        function calc() {
+            // 1. 固定成本
+            const totalFixed = get('rentCost') + get('laborCost') + get('miscCost');
+            set('totalFixedDisplay', `¥ ${totalFixed.toLocaleString()}`);
+
+            // 2. 流量模型 (预测)
+            const adBudget = get('adBudget');
+            const targetRoi = get('targetRoi');
+            const organicPercent = get('organicPercent') / 100;
+            const avgTicket = get('avgTicket');
+
+            // 广告带来的成交额
+            const paidGmv = adBudget * targetRoi;
+            // 假设自然流量是基于总流量的占比。Total = Paid + Organic. Organic = Total * P. 
+            // Paid = Total * (1-P). Total = Paid / (1-P).
+            let totalGmv = 0;
+            if(organicPercent < 1) {
+                totalGmv = paidGmv / (1 - organicPercent);
+            } else {
+                totalGmv = paidGmv; // 防止除0错误
+            }
+
+            const totalOrders = avgTicket > 0 ? totalGmv / avgTicket : 0;
+            const estAcos = totalGmv > 0 ? (adBudget / totalGmv * 100) : 0;
+
+            set('estGmv', `¥ ${Math.round(totalGmv).toLocaleString()}`);
+            set('estOrders', Math.round(totalOrders).toLocaleString());
+            set('estAcos', estAcos.toFixed(1) + '%');
+
+            // 3. 单单模型 (Contribution Margin per Order)
+            // 每一个"下单"动作，商家拿到多少钱？
+            // 收入: Ticket
+            // 支出: 
+            //  - 商品成本 (Cost)
+            //  - 履约 (Fulfillment)
+            //  - 平台扣点 (Ticket * Rate)
+            //  - 仅退款/损耗 (Ticket * LossRate)
+            //  - 退货 (ReturnRate * (ReturnCost + Fulfillment(发出的运费赔了) + 平台费(有些退有些不退，假设退) ))
+            //    简化模型：退货单 = 收入0，成本=发货运费+退货损失。不含货值(货回来了)。
+            //    成功单 = 收入Ticket，成本=货值+发货+平台
+            
+            const productCost = get('productCost');
+            const fulfillCost = get('fulfillmentCost');
+            const platformRate = get('platformFee') / 100;
+            const lossRate = get('lossRate') / 100;
+            const returnRate = get('returnRate') / 100; // 退货退款
+            const returnLoss = get('returnCost'); // 退货额外损失
+
+            // 成功单比例 (扣除仅退款和退货退款)
+            const successRate = 1 - returnRate - lossRate;
+            
+            // 每一笔"订单"(Order)产生的加权平均贡献毛利 (Contribution Margin)
+            // 逻辑：下100单。
+            // 15单退货：每单亏 Fulfill + ReturnLoss
+            // 2单仅退款：每单亏 ProductCost + Fulfill + Platform(可能) -> 简化为亏 Ticket(全退)
+            // 83单成功：每单赚 Ticket - ProductCost - Fulfill - Platform
+            
+            // 这里我们用更严谨的"每单期望值"算法：
+            // 收入项期望：
+            const revPerOrder = avgTicket * successRate; 
+            
+            // 支出项期望：
+            // 1. 货品成本 (成功单+仅退款单消耗了货，退货单货回来了)
+            const cogsPerOrder = productCost * (1 - returnRate); 
+            // 2. 履约成本 (所有单都发货了)
+            const fulfillPerOrder = fulfillCost * 1; 
+            // 3. 平台扣点 (通常按成交收，退款退回，但也有保底。假设按成功单收)
+            const platformPerOrder = (avgTicket * platformRate) * successRate; 
+            // 4. 退货额外损失 (退货单产生)
+            const returnLossPerOrder = returnLoss * returnRate;
+            // 5. 营销分摊 (Per Order) = AdBudget / TotalOrders
+            const marketingPerOrder = totalOrders > 0 ? adBudget / totalOrders : 0;
+
+            // 扣除广告前的毛利 (Pre-Marketing Contribution)
+            const cmPreAd = revPerOrder - cogsPerOrder - fulfillPerOrder - platformPerOrder - returnLossPerOrder;
+            
+            // 扣除广告后的净利 (Net Profit per Order) - 仅包含变动成本
+            const cmPostAd = cmPreAd - marketingPerOrder;
+
+            // 4. 保本点计算 (Break-even)
+            // 公式：固定成本 / 单均贡献毛利(扣除广告前) * ??? 
+            // 不对，保本是指覆盖固定成本。
+            // 如果广告费是固定的(Budget)，则保本 = (固定成本 + 广告预算) / 单均毛利(不含广告)
+            // 如果广告费是随销量变动的(CPA)，则保本 = 固定成本 / 单均毛利(含CPA)
+            
+            // 在此模型中，用户设定了"Ad Budget"，但通常电商是按ROI跑的，所以更像Variable Cost。
+            // 我们采用"当前营销效率下的保本"：假设ACOS不变。
+            // 此时，单均贡献(含广告) = cmPostAd。
+            // 需要多少单才能覆盖固定成本？
+            
+            let beOrders = 0;
+            let beGmv = 0;
+            let isImpossible = false;
+
+            if (cmPostAd <= 0) {
+                isImpossible = true; // 卖一单亏一单，越卖越亏，永不保本
+            } else {
+                beOrders = totalFixed / cmPostAd;
+                beGmv = beOrders * avgTicket;
+            }
+
+            // 渲染保本面板
+            if(isImpossible) {
+                set('beGmv', '无解');
+                set('beOrders', '卖得越多亏得越多');
+                document.getElementById('beGmv').className = "text-4xl font-black text-red-500 mt-1";
+                set('unitsToCover', '∞');
+                updateProgressBar(0, 100, true);
+            } else {
+                set('beGmv', `¥ ${Math.round(beGmv).toLocaleString()}`);
+                set('beOrders', `${Math.round(beOrders).toLocaleString()} 单`);
+                document.getElementById('beGmv').className = "text-4xl font-black text-white mt-1";
+                set('unitsToCover', `${Math.round(beOrders)} 单`);
+                
+                // 进度条逻辑
+                // Max scale = larger of (Current GMV * 1.2) or (BE GMV * 1.5)
+                const maxScale = Math.max(totalGmv * 1.2, beGmv * 1.2);
+                updateProgressBar(totalGmv, beGmv, false, maxScale);
+                
+                const margin = totalGmv - beGmv;
+                const marginPercent = beGmv > 0 ? (margin / beGmv * 100) : 0;
+                
+                const statusEl = document.getElementById('safetyStatus');
+                const marginEl = document.getElementById('safetyMargin');
+                
+                if(margin > 0) {
+                    statusEl.innerText = "盈利安全区";
+                    statusEl.className = "font-bold text-green-400";
+                    marginEl.innerText = `+${marginPercent.toFixed(1)}%`;
+                    marginEl.className = "font-bold text-green-400";
+                } else {
+                    statusEl.innerText = "亏损危险区";
+                    statusEl.className = "font-bold text-red-400 pulse-text";
+                    marginEl.innerText = `${marginPercent.toFixed(1)}%`;
+                    marginEl.className = "font-bold text-red-400";
+                }
+            }
+
+            set('unitContribution', `¥ ${cmPostAd.toFixed(2)}`);
+
+            // 5. 渲染损益表
+            set('plGmv', `¥ ${Math.round(totalGmv).toLocaleString()}`);
+            set('plCogs', `- ¥ ${Math.round(totalOrders * cogsPerOrder).toLocaleString()}`);
+            set('plFulfillment', `- ¥ ${Math.round(totalOrders * (fulfillPerOrder + returnLossPerOrder + platformPerOrder)).toLocaleString()}`); // 合并杂项变动
+            set('plMarketing', `- ¥ ${Math.round(adBudget).toLocaleString()}`);
+            set('plFixed', `- ¥ ${Math.round(totalFixed).toLocaleString()}`);
+            
+            const netProfit = totalGmv * successRate - (totalOrders * cogsPerOrder) - (totalOrders * fulfillPerOrder) - (totalOrders * platformPerOrder) - (totalOrders * returnLossPerOrder) - adBudget - totalFixed;
+            
+            set('plNet', `¥ ${Math.round(netProfit).toLocaleString()}`);
+            
+            const netEl = document.getElementById('plNet');
+            const badgeEl = document.getElementById('netMarginBadge');
+            const netMargin = totalGmv > 0 ? (netProfit / totalGmv * 100) : 0;
+            
+            badgeEl.innerText = `净利率 ${netMargin.toFixed(1)}%`;
+            if(netProfit >= 0) {
+                netEl.className = "font-black font-mono text-2xl text-green-600";
+                badgeEl.className = "text-xs font-bold px-2 py-0.5 rounded bg-green-100 text-green-700";
+            } else {
+                netEl.className = "font-black font-mono text-2xl text-red-600";
+                badgeEl.className = "text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-700";
+            }
+
+            // 6. 毒舌点评
+            generateCommentary(netProfit, netMargin, isImpossible, marginPercent = (totalGmv - beGmv)/beGmv, cmPostAd);
+        }
+
+        function updateProgressBar(current, target, isImpossible, max) {
+            const bar = document.getElementById('progressBar');
+            const marker = document.getElementById('beMarker');
+            const maxLabel = document.getElementById('maxBarScale');
+
+            if (isImpossible) {
+                bar.style.width = '0%';
+                marker.style.left = '100%'; 
+                maxLabel.innerText = "无法保本";
+                return;
+            }
+
+            // 计算百分比位置
+            const targetPos = (target / max) * 100;
+            const currentPos = (current / max) * 100;
+
+            marker.style.left = `${Math.min(targetPos, 100)}%`;
+            bar.style.width = `${Math.min(currentPos, 100)}%`;
+            maxLabel.innerText = `¥ ${(max/1000).toFixed(0)}k`;
+            
+            // 颜色逻辑
+            if(current < target) {
+                bar.className = "absolute top-0 left-0 bottom-0 bg-red-500 rounded-full transition-all duration-1000";
+            } else {
+                bar.className = "absolute top-0 left-0 bottom-0 bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 rounded-full transition-all duration-1000";
+            }
+        }
+
+        function generateCommentary(profit, margin, isImpossible, safetyGap, unitProfit) {
+            const box = document.getElementById('commentary');
+            let html = '';
+
+            if (isImpossible) {
+                html = `<p class="text-red-600 font-bold"><i class="fas fa-skull"></i> 别算了，这生意没法做。</p>
+                        <p>你的每一单都在亏钱（变动成本 > 客单价）。就算房东免租、员工免费，你也是卖得越多亏得越多。赶紧去砍供应链成本或者涨价，否则就是在做慈善。</p>`;
+            } else if (profit < 0) {
+                html = `<p class="text-orange-600 font-bold"><i class="fas fa-exclamation-triangle"></i> 你在给房东和员工打工。</p>
+                        <p>目前每月亏损 <span class="font-mono font-bold">¥${Math.abs(profit).toFixed(0)}</span>。虽然单单有毛利，但还没跑过固定成本。
+                        你需要把销量再提升 <span class="font-bold">${Math.abs(safetyGap*100).toFixed(0)}%</span> 才能上岸。如果流量拉不上去了，就考虑裁员或换个小仓库吧。</p>`;
+            } else if (margin < 5) {
+                html = `<p class="text-yellow-600 font-bold"><i class="fas fa-meh"></i> 赚的是辛苦钱。</p>
+                        <p>净利率才 ${margin.toFixed(1)}%，稍微来个退货率波动或者广告PPC上涨，你立马就亏。这种生意脆弱得像张纸，建议严抓退货率，那是你的利润杀手。</p>`;
+            } else {
+                html = `<p class="text-green-600 font-bold"><i class="fas fa-smile-wink"></i> 这才是正经生意。</p>
+                        <p>净利率 ${margin.toFixed(1)}%，安全边际 ${safetyGap > 0.5 ? '很足' : '尚可'}。现在你可以考虑放大广告预算了，因为你的模型已经验证跑通，只要ROI不崩，大胆扩量。</p>`;
+            }
+            
+            box.innerHTML = html;
+        }
+
+        function resetForm() {
+            if(confirm('重置所有数据？')) {
+                loadScenario('standard');
+            }
+        }
+
+        // 初始化
+        window.onload = function() {
+            calc();
+        };
+    </script>
+</body>
+</html>
