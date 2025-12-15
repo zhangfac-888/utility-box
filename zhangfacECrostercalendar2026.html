@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年运营排班全能日历 - 张发财出品</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --holiday-bg: #e74c3c;
+            --holiday-text: #fff;
+            --rest-bg: #2ecc71; /* 休息日绿 */
+            --rest-text: #fff;
+            --work-bg: #fff;
+            --makeup-bg: #f39c12; /* 补班黄 */
+            --makeup-text: #fff;
+            --border-color: #ecf0f1;
+            --small-sat-bg: #fdf2e9; /* 小周周六背景 */
+            --small-sat-text: #d35400;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            color: var(--text-main);
+        }
+
+        /* 切换按钮组 */
+        .mode-switcher {
+            display: inline-flex;
+            background: #ecf0f1;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #7f8c8d;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 图例 */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+        .legend-item { display: flex; align-items: center; }
+        .dot { width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; }
+
+        /* 日历网格 */
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .month-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .month-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .week-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            padding: 8px 0;
+            background: #f8f9fa;
+            font-size: 12px;
+            color: #7f8c8d;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border-color); /* 网格线颜色 */
+            flex-grow: 1;
+        }
+
+        .day-cell {
+            background: var(--work-bg);
+            min-height: 50px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            cursor: default;
+        }
+
+        /* 日期修饰 */
+        .day-cell.holiday { background: var(--holiday-bg); color: var(--holiday-text); }
+        .day-cell.rest { color: var(--rest-bg); font-weight: bold; background: #e8f8f5; }
+        .day-cell.makeup { background: var(--makeup-bg); color: var(--makeup-text); }
+        .day-cell.small-sat { background: var(--small-sat-bg); color: var(--small-sat-text); }
+        .day-cell.empty { background: #fafafa; }
+
+        /* 标签 */
+        .tag {
+            font-size: 9px;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            line-height: 1;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+        .tag-holiday { background: rgba(255,255,255,0.3); }
+        .tag-makeup { content: "班"; }
+
+        /* 底部统计 */
+        .month-stats {
+            padding: 10px;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            color: #555;
+        }
+        .stat-item b { font-weight: bold; margin-left: 2px; }
+        .stat-work b { color: #2c3e50; }
+        .stat-rest b { color: var(--rest-bg); }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>2026年 运营排班日历</h1>
+        
+        <div class="mode-switcher">
+            <button class="mode-btn active" onclick="setMode('double')">双休模式</button>
+            <button class="mode-btn" onclick="setMode('bigsmall')">大小周模式</button>
+            <button class="mode-btn" onclick="setMode('single')">单休模式</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="dot" style="background:var(--holiday-bg)"></div>法定节假日</div>
+            <div class="legend-item"><div class="dot" style="background:#e8f8f5; border:1px solid var(--rest-bg)"></div>休息日</div>
+            <div class="legend-item"><div class="dot" style="background:var(--makeup-bg)"></div>调休补班</div>
+            <div class="legend-item"><div class="dot" style="background:var(--work-bg); border:1px solid #ddd"></div>工作日</div>
+            <div class="legend-item" id="small-sat-legend" style="display:none"><div class="dot" style="background:var(--small-sat-bg)"></div>小周工作日</div>
+        </div>
+    </div>
+
+    <div id="calendar-root" class="calendar-container">
+        <!-- JS生成日历 -->
+    </div>
+
+<script>
+    // --- 数据配置 ---
+    const STATUTORY_HOLIDAYS = {
+        '2026-01-01': '元旦',
+        '2026-02-16': '春节', '2026-02-17': '春节', '2026-02-18': '春节', '2026-02-19': '春节', '2026-02-20': '春节', '2026-02-21': '春节', '2026-02-22': '春节',
+        '2026-04-04': '清明', '2026-04-05': '清明', '2026-04-06': '清明',
+        '2026-05-01': '劳动', '2026-05-02': '劳动', '2026-05-03': '劳动', '2026-05-04': '劳动', '2026-05-05': '劳动',
+        '2026-06-19': '端午', '2026-06-20': '端午', '2026-06-21': '端午',
+        '2026-09-25': '中秋', '2026-09-26': '中秋', '2026-09-27': '中秋',
+        '2026-10-01': '国庆', '2026-10-02': '国庆', '2026-10-03': '国庆', '2026-10-04': '国庆', '2026-10-05': '国庆', '2026-10-06': '国庆', '2026-10-07': '国庆',
+    };
+
+    const MAKEUP_WORK_DAYS = {
+        '2026-02-15': true, '2026-02-28': true,
+        '2026-04-26': true, '2026-05-09': true,
+        '2026-09-20': true, '2026-10-10': true,
+    };
+
+    let currentMode = 'double'; // 'double', 'bigsmall', 'single'
+
+    // 大小周计算逻辑
+    const isBigWeek = (date) => {
+        const oneDay = 24 * 60 * 60 * 1000;
+        const jan3 = new Date(2026, 0, 3).getTime(); 
+        const dayOfWeek = date.getDay();
+        const distToSat = 6 - dayOfWeek;
+        const thisWeekSat = new Date(date.getTime() + distToSat * oneDay);
+        const diffDays = Math.round((thisWeekSat.getTime() - jan3) / oneDay);
+        const weeksPassed = Math.floor(diffDays / 7);
+        return weeksPassed % 2 === 0;
+    };
+
+    function setMode(mode) {
+        currentMode = mode;
+        // 更新按钮状态
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // 更新图例显示
+        const smallSatLegend = document.getElementById('small-sat-legend');
+        smallSatLegend.style.display = (mode === 'bigsmall') ? 'flex' : 'none';
+
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const root = document.getElementById('calendar-root');
+        root.innerHTML = ''; // 清空
+        const year = 2026;
+        const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+
+        for (let month = 0; month < 12; month++) {
+            // 月份容器
+            const monthCard = document.createElement('div');
+            monthCard.className = 'month-card';
+
+            // 月份头
+            const header = document.createElement('div');
+            header.className = 'month-header';
+            header.innerText = `${month + 1}月`;
+            monthCard.appendChild(header);
+
+            // 星期头
+            const weekHeader = document.createElement('div');
+            weekHeader.className = 'week-header';
+            weekDays.forEach(wd => {
+                const w = document.createElement('div');
+                w.innerText = wd;
+                weekHeader.appendChild(w);
+            });
+            monthCard.appendChild(weekHeader);
+
+            // 日期网格
+            const daysGrid = document.createElement('div');
+            daysGrid.className = 'days-grid';
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // 统计数据
+            let workDaysCount = 0;
+            let restDaysCount = 0;
+
+            // 填充空白
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day-cell empty';
+                daysGrid.appendChild(empty);
+            }
+
+            // 填充日期
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dateObj = new Date(year, month, d);
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const dayOfWeek = dateObj.getDay(); // 0(Sun) - 6(Sat)
+
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
+                cell.innerText = d;
+
+                let type = 'work'; // work, rest, holiday, makeup
+
+                // --- 核心判断逻辑 ---
+                if (STATUTORY_HOLIDAYS[dateStr]) {
+                    // 1. 法定节假日 (最高优先级)
+                    type = 'holiday';
+                    cell.classList.add('holiday');
+                    const tag = document.createElement('span');
+                    tag.className = 'tag tag-holiday';
+                    tag.innerText = STATUTORY_HOLIDAYS[dateStr];
+                    cell.appendChild(tag);
+                    restDaysCount++;
+                } else if (MAKEUP_WORK_DAYS[dateStr]) {
+                    // 2. 补班 (法定节假日导致的调休，必上班)
+                    type = 'makeup';
+                    cell.classList.add('makeup');
+                    const tag = document.createElement('span');
+                    tag.className = 'tag tag-makeup';
+                    tag.innerText = '班';
+                    cell.appendChild(tag);
+                    workDaysCount++;
+                } else {
+                    // 3. 常规周末逻辑 (根据模式切换)
+                    if (dayOfWeek === 0) {
+                        // 周日：所有模式下都是休息 (除非被上面的补班拦截)
+                        type = 'rest';
+                        cell.classList.add('rest');
+                        restDaysCount++;
+                    } else if (dayOfWeek === 6) {
+                        // 周六：看模式
+                        if (currentMode === 'double') {
+                            type = 'rest';
+                            cell.classList.add('rest');
+                            restDaysCount++;
+                        } else if (currentMode === 'single') {
+                            type = 'work';
+                            // 普通工作日样式
+                            workDaysCount++;
+                        } else if (currentMode === 'bigsmall') {
+                            // 大小周
+                            if (isBigWeek(dateObj)) {
+                                type = 'rest';
+                                cell.classList.add('rest');
+                                restDaysCount++;
+                                // 可以加个标记说这是大周
+                            } else {
+                                type = 'work';
+                                cell.classList.add('small-sat');
+                                const tag = document.createElement('span');
+                                tag.className = 'tag';
+                                tag.innerText = '小周';
+                                tag.style.color = '#d35400';
+                                cell.appendChild(tag);
+                                workDaysCount++;
+                            }
+                        }
+                    } else {
+                        // 周一至周五
+                        type = 'work';
+                        workDaysCount++;
+                    }
+                }
+
+                daysGrid.appendChild(cell);
+            }
+            monthCard.appendChild(daysGrid);
+
+            // 底部统计栏
+            const stats = document.createElement('div');
+            stats.className = 'month-stats';
+            stats.innerHTML = `
+                <div class="stat-item stat-work">出勤: <b>${workDaysCount}</b>天</div>
+                <div class="stat-item stat-rest">休息: <b>${restDaysCount}</b>天</div>
+            `;
+            monthCard.appendChild(stats);
+
+            root.appendChild(monthCard);
+        }
+    }
+
+    // 初始化
+    renderCalendar();
+
+</script>
+</body>
+</html>
