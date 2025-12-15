@@ -1,525 +1,301 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN" class="scroll-smooth"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电商ROI计算工具 (Pro版) - 张发财的资料库</title>
+    <title>张发财的资料库 3.0 - 官方指南</title>
+    <!-- 引入 Tailwind CSS (CDN版，无需配置) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入 Lucide 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 字体优化 -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
-        
-        body { 
-            font-family: 'Noto Sans SC', sans-serif; 
-            background-color: #f3f4f6;
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e5e7eb; border-radius: 20px; }
+        /* 动画关键帧 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        /* 隐藏数字输入框的箭头 */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        .card-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        /* 动态条形图动画 */
-        .bar-segment {
-            transition: width 0.5s ease-in-out;
-        }
-        
-        .floating-label-input:focus-within label {
-            color: #007BFF;
-        }
-
-        /* 发财特色强调色 - 主色调定义 */
-        .facai-blue { color: #007BFF; }
-        .bg-facai-blue { background-color: #007BFF; }
-        .border-facai-blue { border-color: #007BFF; }
-        .ring-facai-blue { --tw-ring-color: #007BFF; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
     </style>
 </head>
-<body class="text-gray-800 min-h-screen flex flex-col font-sans">
+<body class="bg-[#fcfcfc] text-[#1f2329] antialiased overflow-hidden h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
 
-    <!-- 顶部导航 - 使用自定义蓝色 #007BFF -->
-    <header class="bg-[#007BFF] text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-white text-[#007BFF] rounded-lg transform -rotate-3 flex items-center justify-center font-black text-xl shadow-md border-2 border-yellow-400">财</div>
-                <div>
-                    <h1 class="text-lg md:text-xl font-bold tracking-wide">ROI计算罗盘 <span class="text-xs bg-blue-800 px-1.5 py-0.5 rounded text-blue-100 ml-1 font-normal">v3.4 理性版</span></h1>
-                </div>
-            </div>
+    <!-- 主滚动区域 -->
+    <div id="scroll-container" class="flex-1 overflow-y-auto custom-scrollbar scroll-smooth">
+        <div class="max-w-[1200px] mx-auto flex gap-12 px-4 sm:px-8 py-8 sm:py-12">
             
-            <div class="flex items-center gap-3">
-                <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="text-sm bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-bold px-3 py-1.5 rounded transition flex items-center gap-2 shadow-md">
-                    <i class="fas fa-book-open"></i> <span class="hidden sm:inline">张发财的资料库</span>
-                </a>
-                <!-- 重置按钮颜色调整为深蓝，适配背景 -->
-                <button onclick="resetForm()" class="text-sm bg-blue-700 hover:bg-blue-600 px-3 py-1.5 rounded transition flex items-center gap-2 border border-blue-600">
-                    <i class="fas fa-rotate-right"></i> <span class="hidden sm:inline">清空重来</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow p-4 md:p-6 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- 左侧：输入区域 (占8列) -->
-        <div class="lg:col-span-8 space-y-6">
-            
-            <!-- 1. 流量与转化数据 -->
-            <div class="bg-white rounded-xl card-shadow overflow-hidden group hover:shadow-lg transition-shadow">
-                <div class="bg-blue-50 border-b border-blue-100 px-6 py-3 flex items-center gap-2">
-                    <i class="fas fa-bullhorn text-[#007BFF]"></i>
-                    <h2 class="font-bold text-gray-800">流量与投放数据</h2>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">推广花费 (元)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400">¥</span>
-                            <input type="number" id="adCost" value="1000" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#007BFF] focus:border-[#007BFF] outline-none transition font-mono font-medium bg-gray-50 focus:bg-white" oninput="calc()">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">推广成交额 GMV (元)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400">¥</span>
-                            <input type="number" id="adGmv" value="2590" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#007BFF] focus:border-[#007BFF] outline-none transition font-mono font-medium bg-gray-50 focus:bg-white" oninput="calc()">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">单次点击成本 PPC (元)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400">¥</span>
-                            <input type="number" id="ppc" value="1.2" step="0.01" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#007BFF] focus:border-[#007BFF] outline-none transition font-mono bg-gray-50 focus:bg-white" oninput="calc()">
-                        </div>
-                    </div>
-                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">平均客单价 (元)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400">¥</span>
-                            <input type="number" id="avgTicket" value="35" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#007BFF] focus:border-[#007BFF] outline-none transition font-mono bg-gray-50 focus:bg-white" oninput="calc()">
-                        </div>
-                    </div>
-                </div>
-                <!-- 实时小计 -->
-                <div class="bg-blue-50 px-6 py-2 flex justify-between items-center text-sm border-t border-blue-100">
-                    <span class="text-[#007BFF] font-medium">当前表面投产比 (ROI)</span>
-                    <span class="font-bold text-[#007BFF] font-mono text-lg" id="miniRoiDisplay">2.59</span>
-                </div>
-            </div>
-
-            <!-- 2. 产品与成本数据 -->
-            <div class="bg-white rounded-xl card-shadow overflow-hidden group hover:shadow-lg transition-shadow">
-                <div class="bg-gray-50 border-b border-gray-100 px-6 py-3 flex items-center gap-2">
-                    <i class="fas fa-file-invoice-dollar text-gray-500"></i>
-                    <h2 class="font-bold text-gray-800">成本结构 (别骗自己)</h2>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">产品售价 (元)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400">¥</span>
-                            <input type="number" id="sellingPrice" value="29" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition font-mono font-medium bg-gray-50 focus:bg-white" oninput="calc()">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">拿货/生产成本 (元)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400">¥</span>
-                            <input type="number" id="productCost" value="8" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition font-mono bg-gray-50 focus:bg-white" oninput="calc()">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">平台扣点 (%)</label>
-                        <div class="relative">
-                            <input type="number" id="platformFeeRate" value="0.5" step="0.1" class="w-full pl-3 pr-8 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition font-mono bg-gray-50 focus:bg-white" oninput="calc()">
-                            <span class="absolute right-3 top-2.5 text-gray-400">%</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">预估退款率 (%)</label>
-                        <div class="relative">
-                            <input type="number" id="refundRate" value="6.3" step="0.1" class="w-full pl-3 pr-8 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition font-mono bg-gray-50 focus:bg-white" oninput="calc()">
-                            <span class="absolute right-3 top-2.5 text-gray-400">%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 可视化条形图 -->
-             <div class="bg-white rounded-xl card-shadow p-6">
-                <h3 class="font-bold text-gray-700 mb-4 flex justify-between items-center">
-                    <span>资金被谁吃掉了？</span>
-                    <span class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">基于当前GMV拆解</span>
-                </h3>
+            <!-- 左侧核心内容 -->
+            <main class="flex-1 min-w-0 max-w-[800px] mx-auto">
                 
-                <!-- 条形图容器 -->
-                <div class="h-10 w-full bg-gray-100 rounded-lg overflow-hidden flex text-xs text-white font-bold leading-10 mb-2 shadow-inner">
-                    <div id="barCost" class="bar-segment bg-slate-400 text-center border-r border-white/20" style="width: 30%">成本</div>
-                    <div id="barFee" class="bar-segment bg-orange-400 text-center border-r border-white/20" style="width: 5%">损耗</div>
-                    <!-- 广告部分换成主色调 -->
-                    <div id="barAd" class="bar-segment bg-[#007BFF] text-center border-r border-white/20" style="width: 40%">广告</div>
-                    <div id="barProfit" class="bar-segment bg-green-500 text-center" style="width: 25%">利</div>
-                </div>
-                
-                <div class="flex justify-between text-xs text-gray-500 mt-2 px-1">
-                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-slate-400"></div> 货品成本</div>
-                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-orange-400"></div> 平台/退款</div>
-                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-[#007BFF]"></div> 推广花费</div>
-                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-green-500"></div> 净利润</div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- 右侧：结果面板 (PC端 Sticky, 移动端堆叠) -->
-        <div class="lg:col-span-4 space-y-6">
-            
-            <!-- 发财毒舌语录 (随机生成) -->
-            <div class="bg-yellow-50 rounded-xl p-5 border border-yellow-200 shadow-sm relative overflow-hidden">
-                <i class="fas fa-quote-left absolute top-3 left-3 text-yellow-200 text-4xl -z-0"></i>
-                <div class="relative z-10">
-                    <h4 class="font-bold text-yellow-800 text-sm mb-2 flex items-center gap-2">
-                        <span class="bg-yellow-500 text-white px-1.5 rounded text-xs">毒舌</span> 张发财说：
-                    </h4>
-                    <p class="text-slate-800 font-medium text-sm italic leading-relaxed" id="facaiQuote">
-                        <!-- JS 随机填充 -->
-                        加载中...
-                    </p>
-                </div>
-            </div>
-
-            <!-- 核心结果卡片 - 顶部边框换成主色调 -->
-            <div class="bg-white rounded-xl card-shadow border-t-4 border-[#007BFF] sticky top-20">
-                <div class="p-6">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 flex justify-between items-center">
-                        <span>最终分析</span>
-                        <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">含退款损耗</span>
-                    </h2>
+                <!-- 封面图 - 还原 V3.0 风格 -->
+                <div class="relative w-full h-56 bg-[#ebf5ff] rounded-xl overflow-hidden mb-10 border border-blue-50 select-none group">
+                    <!-- 点阵背景 -->
+                    <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(#3b82f6 1.5px, transparent 1.5px); background-size: 24px 24px;">
+                    </div>
                     
-                    <!-- 净利润展示 -->
-                    <div class="text-center mb-6">
-                        <p class="text-sm text-gray-500 mb-1">到底赚了多少钱？</p>
-                        <div class="flex items-baseline justify-center gap-1" id="profitWrapper">
-                            <span class="text-4xl font-black tracking-tight text-green-600" id="netProfit">¥ 0.00</span>
+                    <!-- 内容容器 -->
+                    <div class="absolute inset-0 flex flex-col justify-center px-8 sm:px-12">
+                        <!-- 巨大的 V3.0 -->
+                         <div class="font-black text-[120px] sm:text-[160px] leading-none text-[#d6e4ff] opacity-60 absolute -left-6 bottom-[-30px] sm:bottom-[-45px] pointer-events-none mix-blend-multiply tracking-tighter">
+                            V3.0
+                         </div>
+
+                         <!-- 核心标题 -->
+                         <div class="relative z-10 ml-2 mt-2">
+                             <h1 class="text-3xl sm:text-5xl font-black text-[#172554] tracking-tight mb-4 drop-shadow-sm">
+                                张发财的资料库
+                             </h1>
+                             <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 backdrop-blur-md rounded-md border border-white/60 shadow-sm group-hover:bg-white transition-colors cursor-default">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                <span class="text-[10px] sm:text-xs font-bold text-blue-700 tracking-[0.15em] uppercase">
+                                    Official Guide
+                                </span>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+                
+                <!-- 查看商品详情按钮 -->
+                <div class="mb-10 text-center">
+                    <a href="https://www.xiaohongshu.com/goods-detail/664e075dca6baf00011bc06e?t=1764003375637&amp;xsec_token=ABG20gHhnXxYJkeQ79rC5c-WT9CPU_RCemQfwUqOwlDkw%3D&amp;xsec_source=pc_arkselfshare" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-bold text-lg shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300 group">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        <span>查看商品详情</span>
+                        <i data-lucide="external-link" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <p class="text-sm text-gray-500 mt-2">下单后自动发送知识库激活方式</p>
+                </div>
+
+                <!-- 标题与信息 -->
+                <div class="mb-10 border-b border-gray-100 pb-8">
+                    <div class="text-5xl mb-6 animate-fade-in-up">👋</div>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-[1.3] tracking-tight">
+                        必读：写在前面 —— <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">为什么你需要这个资料库？</span>
+                    </h1>
+                    
+                    <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-400">
+                        <div class="flex items-center gap-2 hover:bg-gray-50 p-1 pr-3 rounded-full transition-colors cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white shadow-sm">张</div>
+                            <span class="text-gray-700 font-medium">张发财</span>
                         </div>
-                        <div class="text-xs font-bold bg-gray-100 inline-block px-2 py-0.5 rounded mt-2 text-gray-600" id="profitRate">净利率: 0%</div>
+                        <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 2025年10月02日</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> 阅读 10w+</span>
+                    </div>
+                </div>
+
+                <!-- 正文 -->
+                <article class="space-y-8 text-[#24292f] leading-[1.8] text-[16px] sm:text-[17px]">
+                    
+                    <!-- 核心使命 -->
+                    <div id="mission" class="content-section bg-blue-50/50 border-l-4 border-blue-500 rounded-r-lg p-5 sm:p-6 flex gap-4 items-start hover:bg-blue-50 transition-colors">
+                        <span class="text-2xl mt-0.5">💡</span>
+                        <div>
+                            <p class="font-bold text-gray-900 mb-2 text-lg">核心使命</p>
+                            <p class="text-gray-700 text-sm sm:text-base leading-relaxed">
+                                在这个充满不确定性的电商环境里，我只做一件事：<strong class="text-blue-700 bg-blue-100/50 px-1 rounded">让运营成长有迹可循。</strong><br>
+                                我不卖焦虑，不讲正确的废话。这里只有经过实战验证的策略、SOP和避坑指南。
+                            </p>
+                        </div>
                     </div>
 
-                    <!-- 核心指标网格 -->
-                    <div class="grid grid-cols-2 gap-3 mb-6">
-                        <!-- 实际ROI 数字换成主色调 -->
-                        <div class="bg-blue-50 p-3 rounded border border-blue-100">
-                            <div class="text-[10px] text-gray-500 uppercase tracking-wide">实际 ROI</div>
-                            <div class="font-bold text-[#007BFF] text-lg" id="realRoi">0.00</div>
+                    <div class="space-y-4">
+                        <p>你好，我是<strong>张发财</strong>。</p>
+                        <p>如果你点开了这个页面，说明你可能正处于电商运营的某个“阵痛期”。或许是平台规则变了，流量腰斩；或许是刚毕业0经验，面试处处碰壁；又或许是做了三年运营，感觉成了单纯的“工具人”，晋升无望。</p>
+                    </div>
+
+                    <!-- 现状 -->
+                    <div id="status" class="content-section pt-4">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 group cursor-pointer text-gray-900">
+                            <span class="text-gray-300 group-hover:text-blue-500 transition-colors">#</span>
+                            我们面临的现状
+                        </h2>
+
+                        <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm space-y-4">
+                            <div class="flex gap-3">
+                                <div class="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></div>
+                                <p><strong class="text-gray-900">知识碎片化：</strong> <span class="text-gray-600">看了几百篇公众号文章，听了无数场直播，依然拼凑不出一个完整的运营体系。</span></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></div>
+                                <p><strong class="text-gray-900">平台变化快：</strong> <span class="text-gray-600">昨天还在研究搜索权重，今天都在谈全站推广，跟不上节奏就是死路一条。</span></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></div>
+                                <p><strong class="text-gray-900">成长无指导：</strong> <span class="text-gray-600">只有KPI的压力，没有方法论的指导，野蛮生长往往伴随着遍体鳞伤。</span></p>
+                            </div>
                         </div>
-                        <div class="bg-orange-50 p-3 rounded border border-orange-100">
-                            <div class="text-[10px] text-gray-500 uppercase tracking-wide">生死线 ROI</div>
-                            <div class="font-bold text-orange-700 text-lg" id="breakEvenRoi">0.00</div>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded text-center">
-                            <div class="text-[10px] text-gray-500">毛利率</div>
-                            <div class="font-bold text-gray-700" id="grossMargin">0%</div>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded text-center">
-                            <div class="text-[10px] text-gray-500">保本转化率</div>
-                            <div class="font-bold text-gray-700" id="beConvRate">0%</div>
+
+                        <div class="my-8 relative pl-6 py-2">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gray-200 rounded-full"></div>
+                            <p class="italic text-gray-500 text-lg font-serif">“大多数运营的瓶颈，不是不够努力，而是陷入了低水平的重复建设。”</p>
                         </div>
                     </div>
 
-                    <!-- 状态判定 (发财点评) -->
-                    <div id="statusAlert" class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm font-medium flex items-start gap-3 mb-4">
-                        <i class="fas fa-check-circle mt-0.5 text-lg"></i>
-                        <span class="leading-snug">不错，是赚钱的。但别骄傲，平台规则变一变可能就没了。</span>
+                    <!-- 价值 -->
+                    <div id="value" class="content-section pt-4">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 group cursor-pointer text-gray-900">
+                            <span class="text-gray-300 group-hover:text-blue-500 transition-colors">#</span>
+                            资料库 3.0 能给你什么？
+                        </h2>
+                        
+                        <p class="mb-6 text-gray-600">这不是一个简单的文件堆砌，而是一个<strong>动态更新的知识操作系统</strong>。</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Card 1 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="layout" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">平台实战</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">淘宝、京东、抖音、小红书全覆盖。从底层流量逻辑到具体的活动报名SOP。</p>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="trending-up" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-green-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">能力进阶</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">高转化文案怎么写？数据分析报表怎么做？如何透过数据看本质？拒绝做表哥。</p>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="users" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-purple-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">职业成长</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">从专员到店长、经理的跃升路径。面试辅导、简历优化、团队管理心法。</p>
+                            </div>
+
+                            <!-- Card 4 -->
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="p-2.5 bg-orange-50 rounded-lg text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="hash" class="w-[22px] h-[22px]"></i>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="w-[18px] h-[18px] text-gray-300 group-hover:text-orange-500 opacity-0 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-gray-900 mb-2">工具模板</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">拿来即用的Excel测算表、日报周报模板、活动策划案PPT。提高效率。</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- 复制按钮换成主色调 -->
-                    <button onclick="copyReport()" class="w-full bg-[#007BFF] hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg active:transform active:scale-95 flex justify-center items-center gap-2 group">
-                        <i class="fas fa-copy group-hover:animate-bounce"></i> 复制战报 (拿去复盘)
-                    </button>
-                </div>
-            </div>
+                    <!-- Footer -->
+                    <div id="footer" class="content-section pt-8 pb-4">
+                        <h2 class="text-xl font-bold mb-4 text-gray-900">写在最后</h2>
+                        <div class="bg-gray-50 rounded-lg p-6 text-gray-600">
+                            <p class="mb-4">我不想做那种冷冰冰的培训机构，我希望这里是你的<strong>外脑</strong>和<strong>加油站</strong>。</p>
+                            <p class="font-medium text-gray-900">我是张发财，我们顶峰相见。</p>
+                        </div>
+                    </div>
+                </article>
 
-            <!-- 深度诊断建议 -->
-            <div class="bg-white rounded-xl card-shadow overflow-hidden">
-                <div class="bg-slate-800 px-5 py-3 flex items-center gap-2">
-                    <i class="fas fa-user-doctor text-yellow-400"></i>
-                    <h2 class="font-bold text-white text-sm">发财的毒舌诊断</h2>
+                <!-- 底部互动区 -->
+                <div class="border-t border-gray-100 mt-12 pt-8 flex items-center justify-between">
+                    <div class="flex gap-6">
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-500 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition-all group shadow-sm">
+                            <i data-lucide="thumbs-up" class="w-[18px] h-[18px] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium">有用 852</span>
+                        </button>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-500 hover:border-green-200 hover:text-green-600 hover:bg-green-50 transition-all group shadow-sm">
+                            <i data-lucide="message-square" class="w-[18px] h-[18px] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium">评论 128</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-300">Last edited 2 hours ago</div>
                 </div>
-                <div class="p-5 text-sm space-y-3 bg-slate-50" id="diagnosisBox">
-                    <!-- 动态内容 -->
+                
+                <div class="h-20"></div>
+            </main>
+
+            <!-- 右侧悬浮目录 -->
+            <aside class="hidden xl:block w-64 shrink-0">
+                <div class="sticky top-4 transition-all duration-300"> <!-- 调整了top值，因为顶栏被移除了 -->
+                    <div class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider pl-4">ON THIS PAGE</div>
+                    <ul class="space-y-1 relative border-l border-gray-100" id="toc-list">
+                        <!-- 蓝色进度条 -->
+                        <div id="toc-indicator" class="absolute left-[-1px] w-[2px] bg-blue-600 transition-all duration-300 ease-out h-6" style="top: 4px; opacity: 1;"></div>
+
+                        <li><a href="#mission" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-blue-600 font-medium" data-target="mission">核心使命</a></li>
+                        <li><a href="#status" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-gray-500" data-target="status">我们面临的现状</a></li>
+                        <li><a href="#value" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-gray-500" data-target="value">资料库 3.0 的价值</a></li>
+                        <li><a href="#footer" class="toc-link block pl-4 py-1.5 text-sm transition-colors hover:text-blue-600 text-gray-500" data-target="footer">写在最后</a></li>
+                    </ul>
+
+                    <!-- CTA 广告 -->
+                    <div class="mt-8 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100/50">
+                        <h4 class="font-bold text-blue-900 text-sm mb-2">进入知识库</h4>
+                        <p class="text-xs text-blue-700/80 mb-3 leading-relaxed">✅ 包含电商运营全平台实战指南<br>✅ 从底层流量逻辑到具体活动SOP<br>✅ 动态更新的知识操作系统</p>
+                        <a href="https://b0o8rybyvnd.feishu.cn/wiki/Dr5Mws07OiLf9KkNvsxcuxRbnfd" target="_blank" class="flex items-center justify-center w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shadow-blue-200 group">
+                            <span>立即进入知识库</span>
+                            <i data-lucide="external-link" class="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform"></i>
+                        </a>
+                        <p class="text-[10px] text-gray-400 mt-2 text-center">点击上方按钮，访问完整资料库</p>
+                    </div>
                 </div>
-            </div>
-            
-             <!-- 版权Footer -->
-            <div class="text-center mt-8 pb-4">
-                <p class="text-xs text-gray-400 font-medium">Powered by 张发财的资料库 3.4</p>
-                <p class="text-[10px] text-gray-300 mt-1">让运营成长有迹可循</p>
-            </div>
+            </aside>
 
         </div>
-
-    </main>
-
-    <!-- 底部Toast提示 -->
-    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded shadow-2xl transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50 flex items-center gap-2">
-        <i class="fas fa-check text-green-400"></i> <span>已复制！数据不会骗人。</span>
     </div>
 
+    <!-- JavaScript 交互逻辑 -->
     <script>
-        // 发财语录库
-        const quotes = [
-            "感动自己没用，数据不会陪你演戏。",
-            "亏损的唯一原因就是：你以为你的品很好。",
-            "别用战术上的勤奋，掩盖战略上的懒惰。",
-            "做电商，不算细账就是做慈善。",
-            "销量是面子，利润才是里子。别只要面子不要里子。",
-            "一切不以利润为目的的投放，都是耍流氓。",
-            "点击率低就是图不行，别怪流量不精准。",
-            "任何生意的本质都是流量成本的套利。",
-            "保本ROI都没算清楚，你投什么广告？",
-            "如果你的产品没有复购，那你永远在给平台打工。"
-        ];
+        // 1. 初始化图标
+        lucide.createIcons();
 
-        // 随机展示语录
-        function setRandomQuote() {
-            const idx = Math.floor(Math.random() * quotes.length);
-            document.getElementById('facaiQuote').innerText = quotes[idx];
-        }
+        // 2. 滚动监听与 TOC 高亮逻辑
+        const scrollContainer = document.getElementById('scroll-container');
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const indicator = document.getElementById('toc-indicator');
+        const sections = ['mission', 'status', 'value', 'footer'];
 
-        const get = (id) => parseFloat(document.getElementById(id).value) || 0;
-        const setHtml = (id, val) => document.getElementById(id).innerHTML = val;
-        
-        function calc() {
-            // 1. 获取输入
-            const adCost = get('adCost');
-            const adGmv = get('adGmv');
-            const ppc = get('ppc');
-            const avgTicket = get('avgTicket');
-            
-            const sellingPrice = get('sellingPrice');
-            const productCost = get('productCost');
-            const platformFeeRate = get('platformFeeRate');
-            const refundRate = get('refundRate');
-
-            // 2. 核心计算
-            const realRoi = adCost > 0 ? adGmv / adCost : 0;
-            
-            // 平台扣点金额
-            const platformFeeAmt = sellingPrice * (platformFeeRate / 100);
-            // 单品毛利金额 (不含广告)
-            const marginAmt = sellingPrice - productCost - platformFeeAmt;
-            // 毛利率
-            const grossMarginRaw = sellingPrice > 0 ? marginAmt / sellingPrice : 0;
-            
-            // 保本ROI(含退款)
-            const refundMultiplier = 1 - (refundRate / 100);
-            const effectiveMarginRaw = grossMarginRaw * refundMultiplier; 
-            const breakEvenRoiWithRef = effectiveMarginRaw > 0 ? 1 / effectiveMarginRaw : 0;
-
-            // 整体盈亏
-            const realGmv = adGmv * refundMultiplier;
-            const totalGrossProfit = realGmv * grossMarginRaw;
-            const netProfit = totalGrossProfit - adCost;
-            const netProfitRate = adGmv > 0 ? (netProfit / adGmv) * 100 : 0;
-
-            // 盈亏平衡转化率
-            const beConvRate = avgTicket > 0 ? (breakEvenRoiWithRef * ppc) / avgTicket * 100 : 0;
-
-            // 3. 更新UI
-            setHtml('realRoi', realRoi.toFixed(2));
-            setHtml('breakEvenRoi', breakEvenRoiWithRef.toFixed(2));
-            setHtml('miniRoiDisplay', realRoi.toFixed(2));
-            setHtml('grossMargin', (grossMarginRaw * 100).toFixed(1) + '%');
-            setHtml('beConvRate', beConvRate.toFixed(2) + '%');
-            
-            const profitEl = document.getElementById('netProfit');
-            const statusEl = document.getElementById('statusAlert');
-            
-            profitEl.innerText = `¥ ${netProfit.toFixed(2)}`;
-            setHtml('profitRate', `净利率: ${netProfitRate.toFixed(2)}%`);
-
-            const profitDiff = realRoi - breakEvenRoiWithRef;
-
-            if (netProfit >= 0) {
-                // 盈利
-                profitEl.className = "text-4xl font-black tracking-tight text-green-600";
-                statusEl.className = "bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm font-medium flex items-start gap-3 mb-4";
-                
-                let winMsg = "处于盈利状态。但记住，电商没有永远的赢家，只有永远的优化。";
-                if(profitDiff < 0.5) winMsg = "虽然赚了，但很微薄。稍微退货多一点你就白干了。警惕！";
-                
-                statusEl.innerHTML = `<i class="fas fa-check-circle mt-0.5 text-lg text-green-600"></i> <span>${winMsg}</span>`;
-            } else {
-                // 亏损
-                profitEl.className = "text-4xl font-black tracking-tight text-red-600";
-                statusEl.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm font-medium flex items-start gap-3 mb-4";
-                
-                let loseMsg = "你在给平台做慈善吗？每出一单都在亏钱，赶紧停下来复盘！";
-                if(profitDiff > -0.5) loseMsg = "在亏损边缘试探。要么降PPC，要么提转化，别无他路。";
-                
-                statusEl.innerHTML = `<i class="fas fa-skull mt-0.5 text-lg text-red-600"></i> <span>${loseMsg}</span>`;
-            }
-
-            // 更新诊断
-            updateDiagnosis(netProfit, realRoi, breakEvenRoiWithRef, ppc, avgTicket, adGmv, adCost);
-
-            // 4. 更新条形图
-            if (adGmv > 0) {
-                const costRatio = (productCost / sellingPrice) * 100;
-                const feeRatio = (platformFeeRate + refundRate); 
-                const adRatio = (adCost / adGmv) * 100;
-                
-                let renderCost = costRatio;
-                let renderFee = feeRatio;
-                let renderAd = adRatio;
-                let renderProfit = 100 - renderCost - renderFee - renderAd;
-                
-                if (renderProfit < 0) {
-                    renderProfit = 0; 
+        scrollContainer.addEventListener('scroll', () => {
+            // 目录高亮计算
+            let currentSection = '';
+            for (const sectionId of sections) {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    // 简单的判断逻辑：当元素顶部接近视口顶部时
+                    if (rect.top <= 300) {
+                        currentSection = sectionId;
+                    }
                 }
-
-                // 简单的视觉修正，防止总和溢出导致换行
-                const total = renderCost + renderFee + renderAd + renderProfit;
-                const scale = total > 100 ? 100 / total : 1;
-
-                document.getElementById('barCost').style.width = `${renderCost * scale}%`;
-                document.getElementById('barCost').innerText = renderCost > 5 ? `货${Math.round(renderCost)}%` : '';
-                
-                document.getElementById('barFee').style.width = `${renderFee * scale}%`;
-                document.getElementById('barFee').innerText = renderFee > 5 ? `损${Math.round(renderFee)}%` : '';
-
-                document.getElementById('barAd').style.width = `${renderAd * scale}%`;
-                document.getElementById('barAd').innerText = renderAd > 5 ? `广${Math.round(renderAd)}%` : '';
-                
-                document.getElementById('barProfit').style.width = `${renderProfit * scale}%`;
-                document.getElementById('barProfit').className = renderProfit > 0 ? 'bar-segment bg-green-500 text-center' : 'hidden';
-                document.getElementById('barProfit').innerText = renderProfit > 5 ? `利${Math.round(renderProfit)}%` : '';
             }
-        }
 
-        function updateDiagnosis(netProfit, realRoi, beRoi, ppc, avgTicket, adGmv, adCost) {
-            const diagBox = document.getElementById('diagnosisBox');
-            let html = '';
-            
-            const clicks = ppc > 0 ? adCost / ppc : 0;
-            const orders = avgTicket > 0 ? adGmv / avgTicket : 0;
-            const currentCvr = clicks > 0 ? (orders / clicks * 100) : 0;
-
-            if (netProfit >= 0) {
-                const scalePpc = (avgTicket * currentCvr / 100) / beRoi;
-                html = `
-                    <div class="space-y-3">
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check text-green-600 mt-1"></i>
-                            <div>
-                                <span class="font-bold text-gray-800">现状不错：</span>
-                                <span class="text-gray-600">但别躺平。电商是逆水行舟，你的ROI只要跌破 <span class="font-bold text-red-600">${beRoi.toFixed(2)}</span>，利润瞬间清零。</span>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-2">
-                             <i class="fas fa-bolt text-yellow-600 mt-1"></i>
-                             <div>
-                                <span class="font-bold text-gray-800">激进打法：</span>
-                                <span class="text-gray-600">想抢流量？你的PPC如果敢出到 <span class="font-bold text-gray-800">¥${scalePpc.toFixed(2)}</span>，那你就纯粹是在帮平台打工了（0利润点）。自己掂量。</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                const targetPpc = (avgTicket * currentCvr / 100) / beRoi;
-                const targetCvr = (beRoi * ppc) / avgTicket * 100;
-
-                html = `
-                    <div class="space-y-3">
-                        <div class="flex items-start gap-2 text-red-700 bg-red-50 p-2 rounded">
-                            <i class="fas fa-fire mt-1"></i>
-                            <div>
-                                <span class="font-bold">严重警告：</span>
-                                <span>转化率只有 <span class="font-black">${currentCvr.toFixed(2)}%</span>，这种内功你凭什么敢出价 ¥${ppc}？钱是大风刮来的吗？</span>
-                            </div>
-                        </div>
-                        <p class="font-bold text-gray-800 text-xs uppercase tracking-wider mt-2">止血方案 (二选一):</p>
-                        <ul class="space-y-2 text-gray-700 pl-1">
-                            <li class="flex items-center gap-2">
-                                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded">认怂</span>
-                                <span>把出价降到 <span class="font-bold text-red-600 border-b border-red-300">¥${targetPpc.toFixed(2)}</span>，接受流量变少的事实。</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded">死磕</span>
-                                <span>优化主图和详情页，把转化率拉到 <span class="font-bold text-red-600 border-b border-red-300">${targetCvr.toFixed(2)}%</span>。做不到就别投了。</span>
-                            </li>
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            diagBox.innerHTML = html;
-        }
-
-        function copyReport() {
-            const date = new Date().toLocaleDateString();
-            const netProfit = document.getElementById('netProfit').innerText;
-            const roi = document.getElementById('realRoi').innerText;
-            const beRoi = document.getElementById('breakEvenRoi').innerText;
-            const margin = document.getElementById('grossMargin').innerText;
-            
-            // 更毒舌的战报文案
-            const isLoss = netProfit.includes('¥ -');
-            const statusEmoji = isLoss ? '💸' : '💰';
-            const statusText = isLoss ? '血亏' : '盈利';
-            const advice = isLoss 
-                ? '建议：别解释了，这就是事故。赶紧降PPC或者优化转化率，否则趁早关店。' 
-                : '建议：目前还行，但别飘。继续监控转化率波动，随时准备调整出价。';
-
-            const text = `【张发财的ROI毒舌诊断】${date}\n------------------\n${statusEmoji} 投放结果：${statusText} ${netProfit}\n📈 实际ROI：${roi}\n🛡️ 生死线ROI：${beRoi}\n📦 真实毛利：${margin}\n------------------\n${advice}\n(来自：张发财的资料库)`;
-
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast();
-            } catch (err) {
-                alert('复制失败，请手动截图');
-            }
-            document.body.removeChild(textarea);
-        }
-
-        function showToast() {
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1';
-            toast.style.transform = 'translate(-50%, 0)';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translate(-50%, 40px)';
-            }, 2500);
-        }
-
-        function resetForm() {
-            if(confirm('想清楚了？数据清空了可回不来。')) {
-                document.querySelectorAll('input').forEach(input => {
-                    if(input.id === 'adCost') input.value = 0;
-                    if(input.id === 'adGmv') input.value = 0;
+            // 更新 TOC 样式
+            if (currentSection) {
+                tocLinks.forEach(link => {
+                    link.classList.remove('text-blue-600', 'font-medium');
+                    link.classList.add('text-gray-500');
+                    if (link.dataset.target === currentSection) {
+                        link.classList.add('text-blue-600', 'font-medium');
+                        link.classList.remove('text-gray-500');
+                    }
                 });
-                calc();
-            }
-        }
 
-        // 初始化
-        window.onload = function() {
-            setRandomQuote();
-            calc();
-        };
+                // 移动指示条
+                const index = sections.indexOf(currentSection);
+                if (index !== -1) {
+                    indicator.style.top = `${4 + (index * 32)}px`; // 32px 是每个 li 的高度间距估算
+                    indicator.style.opacity = '1';
+                }
+            }
+        });
     </script>
-</body>
-</html>
+
+
+</body></html>
